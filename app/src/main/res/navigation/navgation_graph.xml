@@ -6,6 +6,14 @@
 
     <fragment
         android:id="@+id/dealsFragment"
-        android:name="com.arjental.dealdone.userinterface.DealsFragment"
-        android:label="DealsFragment" />
+        android:name="com.arjental.dealdone.userinterface.TasksFragment"
+        android:label="DealsFragment" >
+        <action
+            android:id="@+id/action_dealsFragment_to_newTaskFragment"
+            app:destination="@id/newTaskFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/newTaskFragment"
+        android:name="com.arjental.dealdone.userinterface.NewTaskFragment"
+        android:label="NewTaskFragment" />
 </navigation>
