@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Сделай дело</string>
+    <string name="my_tasks_done">Выполнено — %1$s </string>
+
+    <string name="importance_none">Нет</string>
+    <string name="importance_low">Низкий</string>
+    <string name="importance_high">!! Высокий</string>
+    <string name="my_tasks">Мои дела</string>
+    <string name="delete_edit_task">Удалить</string>
+    <string name="deadline_not_set">Не установлено</string>
+    <string name="new_fragment_importance">Важность</string>
+    <string name="new_task_done_beore">Сделать до</string>
+    <string name="new_task_save">СОХРАНИТЬ</string>
+
+    <string name="notification_channel_name">Уведомления о задачах на день</string>
+    <string name="tasks_to_done_title">Послушай, старина</string>
+    <string name="new_tasks_text">У тебя %1$s задач на сегодня.</string>
+    <string name="new_tasks_add">Новое</string>
+
+</resources>

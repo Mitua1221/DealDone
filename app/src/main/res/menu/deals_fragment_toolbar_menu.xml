@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/show"
+        android:id="@+id/show_done_items"
         android:icon="@android:drawable/btn_star"
         android:title="show_it"
         app:showAsAction="always" />

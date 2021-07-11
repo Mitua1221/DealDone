@@ -1,34 +1,68 @@
 package com.arjental.dealdone.userinterface
 
 import android.os.Bundle
-import android.view.*
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
 import com.arjental.dealdone.R
+import com.arjental.dealdone.Translator
+import com.arjental.dealdone.delegates.*
+import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
+import com.arjental.dealdone.recycler.SwipeToDeleteCallback
+import com.arjental.dealdone.recycler.TaskListDiffUtil
 import com.arjental.dealdone.viewmodels.TasksFagmentViewModel
+import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
+import kotlin.math.abs
 
 private const val TAG = "DealsFragment"
 
 class TasksFragment : Fragment() {
 
-    private lateinit var tasksRecyclerView: RecyclerView
-    private val tasksAdapter by lazy { TasksAdapter() }
     private val tvm: TasksFagmentViewModel by lazy {
         ViewModelProvider(requireActivity()).get(TasksFagmentViewModel::class.java)
     }
 
+    private lateinit var tasksRecyclerView: RecyclerView
+
+    private val taskAdapter by lazy {
+        TasksAdapterDelegates(
+            delegates = listOf(
+                TaskItemDelegate(requireContext(), tvm),
+                TaskItemDelegateWithTime(requireContext(), tvm),
+                NewItemDelegate(requireContext()),
+                TopDeviderDelegate(requireContext()),
+                BottomDeviderDelegate(requireContext())
+            )
+        )
+    }
+
     private lateinit var toolbar: androidx.appcompat.widget.Toolbar
+    private lateinit var collapsingToolbar: CollapsingToolbarLayout
     private lateinit var addButton: FloatingActionButton
+    private lateinit var textviewToolbar: TextView
+    private lateinit var appBarLayout: AppBarLayout
+    private lateinit var hideImageButton: ImageButton
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,15 +75,45 @@ class TasksFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.deals_fragment, container, false)
 
-        tasksRecyclerView = view?.findViewById(R.id.task_list_recycler) as RecyclerView
-        setupRecycleView()
-
         toolbar = view.findViewById(R.id.deals_fragment_toolbar)
-        toolbar.inflateMenu(R.menu.deals_fragment_toolbar_menu)
-        toolbar.title = "asdasd"
-        toolbar.subtitle = "mymy"
+
+        hideImageButton = view.findViewById(R.id.image_button_visibility_deals)
+        collapsingToolbar = view.findViewById(R.id.collapsing_toolbar_deals_fragment)
+        textviewToolbar = view.findViewById(R.id.textview_toolbar_deals_fragment)
+        textviewToolbar.text =
+            resources.getString(R.string.my_tasks_done, tvm.unsolvedQuality().toString())
+
+        tvm.recyclerList
+
+        appBarLayout = view.findViewById(R.id.appbarlayout_deals_fragment)
+
+        appBarLayout.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
+            when {
+                abs(verticalOffset) >= appBarLayout.totalScrollRange -> { // collapsed
+
+                }
+                verticalOffset == 0 -> { // fully expand
+                    textviewToolbar.visibility = View.VISIBLE
+                }
+                else -> { // scolling
+                    if (textviewToolbar.visibility == View.VISIBLE) textviewToolbar.visibility =
+                        View.GONE
+                }
+            }
+        })
+
+        println("VASKDASD" + collapsingToolbar.expandedTitleMarginStart.toString())
+
+        collapsingToolbar.expandedTitleMarginStart = collapsingToolbar.expandedTitleMarginStart * 2
+
+        collapsingToolbar.setCollapsedTitleTextAppearance(R.style.deals_bar_title_collapsed)
+        collapsingToolbar.setExpandedTitleTextAppearance(R.style.deals_bar_title_expand)
 
         addButton = view.findViewById(R.id.add_new_task_button)
+        toolbar.title = getString(R.string.my_tasks)
+
+        tasksRecyclerView = view?.findViewById(R.id.task_list_recycler) as RecyclerView
+        setupRecycleView()
 
         return view
     }
@@ -58,86 +122,170 @@ class TasksFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         addButton.setOnClickListener {
+            Log.d(TAG, tvm.tasksList.value.toString())
+            Log.d(TAG, collapsingToolbar.height.toString())
             findNavController().navigate(R.id.action_dealsFragment_to_newTaskFragment)
         }
 
-    }
+        tvm.qualitySolvedChange.observe(viewLifecycleOwner, {
+            textviewToolbar.text =
+                resources.getString(R.string.my_tasks_done, tvm.unsolvedQuality().toString())
+        })
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.deals_fragment_toolbar_menu, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
+        toolbar.setOnClickListener {
+            tasksRecyclerView.smoothScrollToPosition(0)
+        }
 
-    private inner class TasksAdapter : RecyclerView.Adapter<TasksAdapter.TaskViewHolder>() {
+        tvm.tasksList.observe(viewLifecycleOwner, {
+            if (tvm.isHidden) {
+                tvm.setSortedListToPaste(true)
+            } else {
+                tvm.setSortedListToPaste(false)
+            }
+        })
 
-        inner class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        tvm.pasteList.observe(viewLifecycleOwner, {
+            taskAdapter.setData(it)
+        })
 
-//            val titleTextView: TextView = itemView.findViewById(R.id.stock_title)
+        hideImageButton.setOnClickListener {
 
-            init {
-                itemView.setOnClickListener {
-//                    val ticker = stockListViewModel.stockList[adapterPosition]
-//                    val action =
-//                        StockListFragmentDirections.actionStockListFragmentToStockDetailsFragment(
-//                            ticker
-//                        )
-//                    findNavController().navigate(action)
-                }
+            if (tvm.isHidden) {
+                hideImageButton.setImageResource(R.drawable.ic_visibility_on)
+                tvm.setSortedListToPaste(false)
+                tvm.isHidden = false
+            } else {
+                hideImageButton.setImageResource(R.drawable.ic_visibility_off)
+                tvm.setSortedListToPaste(true)
+                tvm.isHidden = true
+                true
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
-            return TaskViewHolder(
-                LayoutInflater.from(parent.context).inflate(
-                    R.layout.tasks_recycler_layout,
-                    parent,
-                    false
-                )
-            )
-
+        toolbar.setOnClickListener {
+            if (tvm.isHidden) {
+                hideImageButton.setImageResource(R.drawable.ic_visibility_on)
+                tvm.setSortedListToPaste(false)
+                tvm.isHidden = false
+            } else {
+                hideImageButton.setImageResource(R.drawable.ic_visibility_off)
+                tvm.setSortedListToPaste(true)
+                tvm.isHidden = true
+                true
+            }
         }
 
-        override fun getItemCount(): Int {
-            return tvm.recyclerList?.size ?: 0
+        collapsingToolbar.setOnClickListener {
+            if (tvm.isHidden) {
+                hideImageButton.setImageResource(R.drawable.ic_visibility_on)
+                tvm.setSortedListToPaste(false)
+                tvm.isHidden = false
+            } else {
+                hideImageButton.setImageResource(R.drawable.ic_visibility_off)
+                tvm.setSortedListToPaste(true)
+                tvm.isHidden = true
+                true
+            }
         }
 
-        override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
-//            holder.titleTextView.text = stockListViewModel.stockList[position].title
-//            holder.fullTitleTextView.text = stockListViewModel.stockList[position].fullTitle
+    }
+
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        appBarLayout
+    }
+
+    override fun onResume() {
+        if (Translator.editedTask.value != null) {
+            when (Translator.editedTask.value!!.state) {
+                ItemState.DELETED -> {
+                    tvm.deleteElement(Translator.editedTask.value!!.copy())
+                    Translator.editedTask.value = null
+                }
+                ItemState.NEW -> {
+                    tvm.addElement(Translator.editedTask.value!!.copy())
+                    Translator.editedTask.value = null
+                }
+                ItemState.EXIST -> {
+                    tvm.changeElement(Translator.editedTask.value!!.copy())
+                    Translator.editedTask.value = null
+                }
+                else -> IllegalStateException().addSuppressed(Throwable(message = "Illegal Item State"))
+            }
 
         }
+        super.onResume()
+    }
 
-//        //Обновление только изменных элементов
-//        fun setData(newList: List<Stock>) {
-//
-//            loadingSpinKit.isVisible = false
-//            val oldList = stockListViewModel.stockList
-//            val diffUtil = StockListDiffUtil(newList, oldList)
-//            val diffResults = DiffUtil.calculateDiff(diffUtil)
-//            stockListViewModel.stockList = newList
-//            diffResults.dispatchUpdatesTo(this)
-//        }
-//
-//        fun updateView(int: Int) {
-//            notifyItemChanged(int)
-//        }
+    private inner class TasksAdapterDelegates(
+        private val delegates: List<Delegate>
+    ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-        //Обновление всех элементов
-        //Список избранного лагает из-за этого мептода, DiffUtil вызывает ошибку
-        fun setDataWithRefresh(newList: List<TaskItem>) {
+        override fun getItemViewType(position: Int): Int =
+            delegates.indexOfFirst { delegate -> delegate.forItem(tvm.recyclerList[position]) }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
+            delegates[viewType].getViewHolder(parent)
+
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+            delegates[getItemViewType(position)].bindViewHolder(holder, tvm.recyclerList[position])
+        }
+
+        fun removeAt(position: Int) {
+            notifyItemRemoved(position)
+            tvm.deleteTask(tvm.recyclerList[position])
+            tvm.deleteElement(tvm.recyclerList[position])
+            tvm.qualitySolvedChange.value = true
+        }
+
+        fun doneAt(position: Int) {
+            notifyItemChanged(position)
+            if (tvm.recyclerList[position].isSolved) {
+                tvm.recyclerList[position].isSolved = false
+                tvm.changeDone(tvm.recyclerList[position], false)
+            } else {
+                tvm.recyclerList[position].isSolved = true
+                tvm.changeDone(tvm.recyclerList[position], true)
+            }
+            tvm.qualitySolvedChange.value = true
+        }
+
+        override fun getItemCount(): Int = tvm.recyclerList.size
+
+        fun setData(newList: List<TaskItem>) {
+            val oldList = tvm.recyclerList
+            val diffUtil = TaskListDiffUtil(newList, oldList)
+            val diffResults = DiffUtil.calculateDiff(diffUtil)
             tvm.recyclerList = newList
-            notifyDataSetChanged()
+
+            diffResults.dispatchUpdatesTo(this)
         }
-
-
-
     }
 
     private fun setupRecycleView() {
-        tasksRecyclerView.adapter = tasksAdapter
+        tasksRecyclerView.adapter = taskAdapter
         tasksRecyclerView.layoutManager = LinearLayoutManager(context)
-    }
 
+        val swipeHandler = object : SwipeToDeleteCallback(requireContext()) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val adapter = tasksRecyclerView.adapter as TasksAdapterDelegates
+                when (direction) {
+                    ItemTouchHelper.LEFT -> {
+                        adapter.removeAt(viewHolder.absoluteAdapterPosition)
+                    }
+                    ItemTouchHelper.RIGHT -> {
+                        adapter.doneAt(viewHolder.absoluteAdapterPosition)
+                    }
+                }
+
+
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(swipeHandler)
+        itemTouchHelper.attachToRecyclerView(tasksRecyclerView)
+
+    }
 
 
 }

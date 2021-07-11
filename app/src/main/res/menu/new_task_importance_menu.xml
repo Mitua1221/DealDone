@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/low_prior_menu"
+        android:title="@string/importance_none"/>
+
+    <item android:id="@+id/medium_prior_menu"
+        android:title="@string/importance_low"/>
+
+    <item android:id="@+id/high_prior_menu"
+        android:title="@string/importance_high"
+        />
+
+</menu>

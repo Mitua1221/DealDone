@@ -2,7 +2,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/navgation_graph"
-    app:startDestination="@id/dealsFragment">
+    app:startDestination="@id/loadingFragment">
 
     <fragment
         android:id="@+id/dealsFragment"
@@ -16,4 +16,12 @@
         android:id="@+id/newTaskFragment"
         android:name="com.arjental.dealdone.userinterface.NewTaskFragment"
         android:label="NewTaskFragment" />
+    <fragment
+        android:id="@+id/loadingFragment"
+        android:name="com.arjental.dealdone.userinterface.LoadingFragment"
+        android:label="LoadingFragment" >
+        <action
+            android:id="@+id/action_loadingFragment_to_dealsFragment"
+            app:destination="@id/dealsFragment" />
+    </fragment>
 </navigation>

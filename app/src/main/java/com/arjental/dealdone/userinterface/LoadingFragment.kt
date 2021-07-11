@@ -5,31 +5,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.arjental.dealdone.R
+import com.arjental.dealdone.Translator
 
-private const val TAG = "DealsFragment"
-
-class DealsFragment : Fragment() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+class LoadingFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        val view = inflater.inflate(R.layout.loading_fragment, container, false)
 
-        val view = inflater.inflate(R.layout.deals_fragment, container, false)
+        Translator.taskList.observe(viewLifecycleOwner, {
+            if (it != null) findNavController().navigate(R.id.action_loadingFragment_to_dealsFragment)
+        })
 
         return view
     }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-    }
-
-
 
 }

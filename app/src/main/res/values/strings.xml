@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">DealDone</string>
+
+    <string name="my_tasks">My tasks</string>
+    <string name="my_tasks_done">Done — %1$s </string>
+    <string name="new_tasks_add">New</string>
+
+    <string name="importance_none">None</string>
+    <string name="importance_low">Low</string>
+    <string name="importance_high">!! High</string>
+    <string name="deadline_not_set">Not set</string>
+
+    <string name="delete_edit_task">Delete</string>
+    <string name="new_fragment_importance">Importance</string>
+    <string name="new_task_done_beore">Done beore</string>
+    <string name="new_task_save">SAVE</string>
+
+    <string name="notification_channel_name">Daily task notifications</string>
+    <string name="tasks_to_done_title">Tasks for today</string>
+    <string name="new_tasks_text">You have a %1$s tasks to do today.</string>
+
 </resources>

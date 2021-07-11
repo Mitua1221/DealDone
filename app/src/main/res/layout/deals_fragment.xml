@@ -1,33 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/back_light_primary">
 
     <com.google.android.material.appbar.AppBarLayout
-
+        android:id="@+id/appbarlayout_deals_fragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:liftOnScroll="true"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        android:backgroundTint="@color/back_light_primary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:liftOnScroll="true">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar_deals_fragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:expandedTitleGravity="bottom"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            >
+            android:layout_height="124dp"
+            app:collapsedTitleTextAppearance="@color/color_light_red"
+            app:expandedTitleTextAppearance="@color/black"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-            <ImageView
+            <TextView
+                android:id="@+id/textview_toolbar_deals_fragment"
+                style="@style/deals_bar_textview"
                 android:layout_width="wrap_content"
-                android:layout_height="164dp"/>
+                android:layout_height="wrap_content"
+                android:layout_marginTop="100dp"
+                app:layout_collapseMode="none"
+                android:layout_marginStart="67dp"/>
+
+            <ImageButton
+                android:id="@+id/image_button_visibility_deals"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="bottom|right"
+                tools:ignore="RtlHardcoded"
+                android:src="@drawable/ic_visibility_off"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_marginBottom="18dp"
+                android:layout_marginEnd="22dp"/>
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/deals_fragment_toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="64dp"
+                android:layout_height="56dp"
                 app:layout_collapseMode="pin"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:titleEnabled="true" />
@@ -38,39 +56,49 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/task_list_recycler"
-        android:background="@color/teal_200"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/recyclerview_deals_fragment_background"
+        android:elevation="2dp"
+
+        android:overScrollMode="never"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
     </androidx.recyclerview.widget.RecyclerView>
 
     <!--    <androidx.core.widget.NestedScrollView-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">-->
 
-<!--        <TextView-->
-<!--            android:id="@+id/textView"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:paddingTop="512dp"-->
-<!--            android:paddingBottom="512dp"-->
-<!--            android:text="fr1"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toTopOf="parent" />-->
+    <!--        <TextView-->
+    <!--            android:id="@+id/textView"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:paddingTop="512dp"-->
+    <!--            android:paddingBottom="512dp"-->
+    <!--            android:text="fr1"-->
+    <!--            app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--            app:layout_constraintEnd_toEndOf="parent"-->
+    <!--            app:layout_constraintStart_toStartOf="parent"-->
+    <!--            app:layout_constraintTop_toTopOf="parent" />-->
 
-<!--    </androidx.core.widget.NestedScrollView>-->
+    <!--    </androidx.core.widget.NestedScrollView>-->
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_new_task_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:layout_gravity="end|bottom"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="40dp"
-        />
+        android:src="@drawable/ic_add_floating_button"
+        app:backgroundTint="@color/color_light_blue"
+        app:maxImageSize="16dp"
+        app:tint="@color/color_light_white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
