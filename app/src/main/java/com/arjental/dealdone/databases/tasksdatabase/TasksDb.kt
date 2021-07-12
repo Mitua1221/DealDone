@@ -2,10 +2,14 @@ package com.arjental.dealdone.databases.tasksdatabase
 
 import android.content.Context
 import androidx.room.Room
+import com.arjental.dealdone.databases.tasksdatabase.interfaces.TasksDbInterface
 import com.arjental.dealdone.models.TaskItem
 import java.util.*
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class TasksDb(context: Context) {
+@Singleton
+class TasksDb @Inject constructor(context: Context): TasksDbInterface {
 
     private val database: TasksDatabase = Room.databaseBuilder(
         context.applicationContext,

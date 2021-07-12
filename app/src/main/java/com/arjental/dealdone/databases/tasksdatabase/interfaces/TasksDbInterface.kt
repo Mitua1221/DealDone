@@ -1,0 +1,3 @@
+package com.arjental.dealdone.databases.tasksdatabase.interfaces
+
+interface TasksDbInterface

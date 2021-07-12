@@ -13,13 +13,13 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitInstance {
 
-    const val BASE_URL = "https://d5dps3h13rv6902lp5c8.apigw.yandexcloud.net/ "
+    private const val BASE_URL = "https://d5dps3h13rv6902lp5c8.apigw.yandexcloud.net/ "
 
 //    val loggingInterceptor: HttpLoggingInterceptor =
 //        HttpLoggingInterceptor()
 //            .setLevel(HttpLoggingInterceptor.Level.BODY)
 
-    const val TOKEN = "db0a23b1468c45ef84a6d42a2e174079"
+    private const val TOKEN = "db0a23b1468c45ef84a6d42a2e174079"
 
     val okHttpClient: OkHttpClient =
         OkHttpClient()

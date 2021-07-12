@@ -2,12 +2,15 @@ package com.arjental.dealdone.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.arjental.dealdone.Translator
 import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
 import com.arjental.dealdone.models.TaskItemPriorities
 import com.arjental.dealdone.repository.Actualizer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -23,9 +26,11 @@ class TasksFagmentViewModel : ViewModel() {
     val qualitySolvedChange: MutableLiveData<Boolean> = MutableLiveData(true)
 
     init {
-        val s = Translator.taskList.value
-        tasksList.value = s
-        println("actua" + s.toString())
+        viewModelScope.launch {
+            Translator.taskListFlow.collect {
+                launch(Dispatchers.Main) { tasksList.value = it }
+            }
+        }
     }
 
     fun updateOrAddTask(taskItem: TaskItem) {

@@ -7,6 +7,7 @@ import android.content.Context
 import android.os.Build
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.work.*
+import com.arjental.dealdone.di.DealDoneAppComponent
 import com.arjental.dealdone.repository.Actualizer
 import com.arjental.dealdone.repository.Repository
 import com.arjental.dealdone.workmanager.TasksWorkerActualization
@@ -19,6 +20,10 @@ private const val NOTIFICATION_WORK = "NOTIFICATION_WORK"
 private const val UPDATE_WORK = "UPDATE_WORK"
 
 class DealDoneApplication : Application() {
+
+    val dealDoneComponent: DealDoneAppComponent by lazy {
+        DaggerDealDoneAppComponent.factory().create(applicationContext)
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -70,7 +75,7 @@ class DealDoneApplication : Application() {
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
         val periodicRequest = PeriodicWorkRequest
-            .Builder(TasksWorkerActualization::class.java, 8, TimeUnit.HOURS)
+            .Builder(TasksWorkerActualization::class.java, 1, TimeUnit.HOURS)
             .setConstraints(constraints)
             .build()
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(

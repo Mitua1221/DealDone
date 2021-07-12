@@ -7,25 +7,32 @@ import com.arjental.dealdone.models.TaskItem
 import com.arjental.dealdone.models.newtworkmodels.ItemFromApi
 import com.arjental.dealdone.models.newtworkmodels.SyncItemsFromApi
 import com.arjental.dealdone.network.RetrofitInstance
+import com.arjental.dealdone.repository.interfaces.RepositoryInterface
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.*
+import javax.inject.Inject
+import javax.inject.Singleton
 
 
 private const val TAG = "Repository"
 
-class Repository(context: Context) {
+@Singleton
+class Repository @Inject constructor(context: Context, tasksConstDatabase: TasksDb, converterConstFromApi: ConverterFromApi): RepositoryInterface {
 
-    private lateinit var tasksDatabase: TasksDb
-    private lateinit var converterFromApi: ConverterFromApi
+    private val tasksDatabase = tasksConstDatabase
+    private val converterFromApi = converterConstFromApi
 
-    init {
-        TasksDb.initialize(context)
-        tasksDatabase = TasksDb.get()
-        ConverterFromApi.initialize()
-        converterFromApi = ConverterFromApi.get()
-    }
+//    private lateinit var tasksDatabase: TasksDb
+//    private lateinit var converterFromApi: ConverterFromApi
+//
+//    init {
+//        TasksDb.initialize(context)
+//        tasksDatabase = TasksDb.get()
+//        ConverterFromApi.initialize()
+//        converterFromApi = ConverterFromApi.get()
+//    }
 
     //Database
 

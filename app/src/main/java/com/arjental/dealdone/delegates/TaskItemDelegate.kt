@@ -23,9 +23,9 @@ import com.arjental.dealdone.viewmodels.TasksFagmentViewModel
 
 class TaskItemDelegate(context: Context, viewModels: ViewModel) : Delegate {
 
-    val viewModel = viewModels
-    val colorDone = ResourcesCompat.getColor(context.resources, R.color.label_light_tertiary, context.theme)
-    val colorBlack = ResourcesCompat.getColor(context.resources, R.color.label_light_primary, context.theme)
+    private val viewModel = viewModels
+    private val colorDone = ResourcesCompat.getColor(context.resources, R.color.label_light_tertiary, context.theme)
+    private val colorBlack = ResourcesCompat.getColor(context.resources, R.color.label_light_primary, context.theme)
 
     override fun forItem(listItem: TaskItem): Boolean =
         (listItem.state == ItemState.EXIST || listItem.state == ItemState.UNCHANGED) && listItem.deadline == null

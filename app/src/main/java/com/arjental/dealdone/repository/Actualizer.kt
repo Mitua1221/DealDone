@@ -4,12 +4,16 @@ import android.util.Log
 import com.arjental.dealdone.Translator
 import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
+import com.arjental.dealdone.repository.interfaces.ActualizerInterface
 import kotlinx.coroutines.*
 import java.util.*
+import javax.inject.Inject
+import javax.inject.Singleton
 
 private const val TAG = "Actualizer"
 
-class Actualizer {
+@Singleton
+class Actualizer @Inject constructor(): ActualizerInterface {
 
     private val actualizationScope =
         CoroutineScope(Dispatchers.IO + CoroutineName("ActualizationScope"))
@@ -31,45 +35,43 @@ class Actualizer {
 
                 val state = Triple(serverIsEmpty, serverIsAviliable, dbIsEmpty)
 
-                Log.d(TAG, "1")
-
                 when (state) {
 
                     Triple(true, false, false) -> {//serv - emty | avil - not | db - not empty
-                        Log.d(TAG, "2")
                         val listWithoutDeleted = notDeleted(taskListFromDb!!)
-                        withContext (Dispatchers.Main) { Translator.taskList.value = listWithoutDeleted }
+                        Translator.taskListFlow.emit(listWithoutDeleted)
+//                        withContext (Dispatchers.Main) { Translator.taskList.value = listWithoutDeleted }
                         updateServerTasks(updList = emptyList(), delList = deleteOnServer(taskListFromDb))
                         //отправляем только на удаление, мы не знаем ничего об актуальности тасков на серве
                     }
 
                     Triple(true, true, false) -> {//serv - emty | avil - yes | db - not empty
-                        Log.d(TAG, "3")
                         val listWithoutDeleted = notDeleted(taskListFromDb!!)
-                        withContext (Dispatchers.Main) { Translator.taskList.value = listWithoutDeleted }
+//                        withContext (Dispatchers.Main) { Translator.taskList.value = listWithoutDeleted }
+                        Translator.taskListFlow.emit(listWithoutDeleted)
                         updateServerTasks(updList = listWithoutDeleted, delList = emptyList())
                         //Отправить все, состояние которых не удаленные
                     }
 
                     Triple(false, true, true) -> {//serv - not emty | avil - yes | db - empty
-                        Log.d(TAG, "4")
-                        withContext (Dispatchers.Main) { Translator.taskList.value = taskListFromServer.first }
+//                        withContext (Dispatchers.Main) { Translator.taskList.value = taskListFromServer.first }
+                        Translator.taskListFlow.emit(taskListFromServer.first)
                         repository.setTasksToDatabase(taskListFromServer.first)
                         //просто вставляем таски в бз
                     }
 
                     Triple(false, true, false) -> {//serv - not emty | avil - yes | db - not empty
-                        Log.d(TAG, "5")
                         val list = comparatorDbListAndApiList(taskListFromDb!!, taskListFromServer.first)
-                        withContext (Dispatchers.Main) { Translator.taskList.value = list[0] }
+//                        withContext (Dispatchers.Main) { Translator.taskList.value = list[0] }
+                        Translator.taskListFlow.emit(list[0])
                         updateDatabaseTasks(list[1])
                         updateServerTasks(updList = list[2], delList = list[3])
                         //обновляем все
                     }
 
                     else -> {
-                        withContext (Dispatchers.Main) { Translator.taskList.value = emptyList() }
-                        Log.d(TAG, "6")
+                        Translator.taskListFlow.emit(emptyList())
+//                        withContext (Dispatchers.Main) { Translator.taskList.value = emptyList() }
                         //serv - emty | avil - not | db - empty
                         //serv - emty | avil - yes | db - empty
                     }

@@ -4,10 +4,14 @@ import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
 import com.arjental.dealdone.models.TaskItemPriorities
 import com.arjental.dealdone.models.newtworkmodels.ItemFromApi
+import com.arjental.dealdone.repository.interfaces.ConverterFromApiInterface
 import java.lang.IllegalArgumentException
 import java.util.*
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class ConverterFromApi {
+@Singleton
+class ConverterFromApi @Inject constructor(): ConverterFromApiInterface {
 
     suspend inline fun convertFromApiTaskListToTaskItemList(body: List<ItemFromApi>?): List<TaskItem> {
         if (body.isNullOrEmpty()) return emptyList() else {

@@ -1,0 +1,3 @@
+package com.arjental.dealdone.repository.interfaces
+
+interface ActualizerInterface
