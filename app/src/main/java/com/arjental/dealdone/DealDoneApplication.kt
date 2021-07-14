@@ -7,6 +7,7 @@ import android.content.Context
 import android.os.Build
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.work.*
+import com.arjental.dealdone.di.DaggerDealDoneAppComponent
 import com.arjental.dealdone.di.DealDoneAppComponent
 import com.arjental.dealdone.repository.Actualizer
 import com.arjental.dealdone.repository.Repository
@@ -21,7 +22,7 @@ private const val UPDATE_WORK = "UPDATE_WORK"
 
 class DealDoneApplication : Application() {
 
-    val dealDoneComponent: DealDoneAppComponent by lazy {
+    val appComponent: DealDoneAppComponent by lazy {
         DaggerDealDoneAppComponent.factory().create(applicationContext)
     }
 
@@ -63,19 +64,18 @@ class DealDoneApplication : Application() {
             periodicRequest
         )
 
-//        val workRequest = OneTimeWorkRequest
-//            .Builder(TasksWorker::class.java)
-//            .build()
-//        WorkManager.getInstance(requireContext())
-//            .enqueue(workRequest)
+        val workRequest = OneTimeWorkRequest
+            .Builder(TasksWorkerNotification::class.java)
+            .build()
+        WorkManager.getInstance(context)
+            .enqueue(workRequest)
     }
 
     private fun setActualizationWorker(context: Context) {
         val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
         val periodicRequest = PeriodicWorkRequest
-            .Builder(TasksWorkerActualization::class.java, 1, TimeUnit.HOURS)
+            .Builder(TasksWorkerActualization::class.java, 8, TimeUnit.HOURS)
             .setConstraints(constraints)
             .build()
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
@@ -83,6 +83,13 @@ class DealDoneApplication : Application() {
             ExistingPeriodicWorkPolicy.KEEP,
             periodicRequest
         )
+
+//        val workRequest = OneTimeWorkRequest
+//            .Builder(TasksWorkerActualization::class.java)
+//            .build()
+//        WorkManager.getInstance(context)
+//            .enqueue(workRequest)
+
     }
 
 }

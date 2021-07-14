@@ -162,7 +162,9 @@ class Repository @Inject constructor(context: Context, tasksConstDatabase: Tasks
         private var INSTANCE: Repository? = null
         fun initialize(context: Context) {
             if (INSTANCE == null) {
-                INSTANCE = Repository(context)
+                TasksDb.initialize(context)
+                ConverterFromApi.initialize()
+                INSTANCE = Repository(context, TasksDb.get(), ConverterFromApi.get())
             }
         }
 

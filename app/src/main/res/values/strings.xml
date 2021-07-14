@@ -17,6 +17,6 @@
 
     <string name="notification_channel_name">Daily task notifications</string>
     <string name="tasks_to_done_title">Tasks for today</string>
-    <string name="new_tasks_text">You have a %1$s tasks to do today.</string>
+    <string name="new_tasks_text">You have a %1$s task(-s) to do today.</string>
 
 </resources>

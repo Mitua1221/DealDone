@@ -1,6 +1,7 @@
 package com.arjental.dealdone.di
 
 import com.arjental.dealdone.databases.tasksdatabase.TasksDb
+import com.arjental.dealdone.databases.tasksdatabase.interfaces.TasksDbInterface
 import com.arjental.dealdone.repository.Actualizer
 import com.arjental.dealdone.repository.ConverterFromApi
 import com.arjental.dealdone.repository.Repository
@@ -23,6 +24,6 @@ abstract class RepositoryModule {
     abstract fun provideActualizer(actualizer: Actualizer): ActualizerInterface
 
     @Binds
-    abstract fun provideTaskDb(tasksDb: TasksDb): ActualizerInterface
+    abstract fun provideTaskDb(tasksDb: TasksDb): TasksDbInterface
 
 }

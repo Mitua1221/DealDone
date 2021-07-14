@@ -23,16 +23,22 @@ class TasksWorkerActualization(val context: Context, workerParams: WorkerParamet
 
     override suspend fun doWork(): Result {
 
+        Log.d(TAG, 11.toString())
+
         Repository.initialize(context)
         val repository = Repository.get()
         Actualizer.initialize()
         val actualizer = Actualizer.get()
         val doWork = Translator.needToUpdate.compareAndSet(true, false)
 
+        Log.d(TAG, doWork.toString())
+
         if (doWork) {
+
+            Log.d(TAG, 11.toString())
+
             val taskListFromDb = repository.getTasksFromDatabase()
             val taskListFromServer = repository.getTasks()
-            Log.d(TAG, "11")
 
             val serverIsEmpty = taskListFromServer.first.isEmpty()
             val serverIsAviliable = taskListFromServer.second
@@ -97,7 +103,7 @@ class TasksWorkerActualization(val context: Context, workerParams: WorkerParamet
                 .setAutoCancel(true)
                 .build()
             val notificationManager = NotificationManagerCompat.from(context)
-            notificationManager.notify(0, notification)
+            notificationManager.notify(13, notification)
 
 
         }

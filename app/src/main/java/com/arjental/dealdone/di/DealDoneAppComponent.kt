@@ -18,12 +18,12 @@ interface DealDoneAppComponent {
         fun create(@BindsInstance context: Context): DealDoneAppComponent
     }
 
-//    fun inject(activity: MainActivity)
-//
-//    fun inject(fragment: LoadingFragment)
-//
-//    fun inject(fragment: NewTaskFragment)
-//
-//    fun inject(fragment: TasksFragment)
+    fun inject(activity: MainActivity)
+
+    fun inject(fragment: LoadingFragment)
+
+    fun inject(fragment: NewTaskFragment)
+
+    fun inject(fragment: TasksFragment)
 
 }

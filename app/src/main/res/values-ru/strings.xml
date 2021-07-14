@@ -15,7 +15,7 @@
 
     <string name="notification_channel_name">Уведомления о задачах на день</string>
     <string name="tasks_to_done_title">Послушай, старина</string>
-    <string name="new_tasks_text">У тебя %1$s задач на сегодня.</string>
+    <string name="new_tasks_text">У тебя %1$s задач(-а) на сегодня.</string>
     <string name="new_tasks_add">Новое</string>
 
 </resources>

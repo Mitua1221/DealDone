@@ -3,6 +3,7 @@ package com.arjental.dealdone.workmanager
 
 import android.app.PendingIntent
 import android.content.Context
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.CoroutineWorker
@@ -20,6 +21,7 @@ class TasksWorkerNotification(val context: Context, workerParams: WorkerParamete
     CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
+
         val date = SimpleDateFormat("HH").format(Date())
 
         if (date == "09") {
@@ -45,7 +47,7 @@ class TasksWorkerNotification(val context: Context, workerParams: WorkerParamete
                     val notification = NotificationCompat
                         .Builder(context, NOTIFICATION_CHANNEL_ID)
                         .setTicker(resources.getString(R.string.tasks_to_done_title))
-                        .setSmallIcon(android.R.drawable.ic_menu_report_image)
+                        .setSmallIcon(R.drawable.ic_done)
                         .setContentTitle(resources.getString(R.string.tasks_to_done_title))
                         .setContentText(
                             resources.getString(
@@ -57,7 +59,7 @@ class TasksWorkerNotification(val context: Context, workerParams: WorkerParamete
                         .setAutoCancel(true)
                         .build()
                     val notificationManager = NotificationManagerCompat.from(context)
-                    notificationManager.notify(0, notification)
+                    notificationManager.notify(12, notification)
                 }
             }
         }

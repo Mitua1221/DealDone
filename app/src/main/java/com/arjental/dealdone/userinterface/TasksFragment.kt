@@ -131,6 +131,7 @@ class TasksFragment : Fragment() {
             textviewToolbar.text =
                 resources.getString(R.string.my_tasks_done, tvm.unsolvedQuality().toString())
         })
+        tvm.qualitySolvedChange.value = true
 
         toolbar.setOnClickListener {
             tasksRecyclerView.smoothScrollToPosition(0)

@@ -24,6 +24,9 @@ object RetrofitInstance {
     val okHttpClient: OkHttpClient =
         OkHttpClient()
             .newBuilder()
+            .connectTimeout(2500, TimeUnit.MILLISECONDS)
+            .writeTimeout(2500, TimeUnit.MILLISECONDS)
+            .readTimeout(2500, TimeUnit.MILLISECONDS)
             .addInterceptor(object : Interceptor {
 
                 override fun intercept(chain: Interceptor.Chain): Response {
@@ -33,8 +36,6 @@ object RetrofitInstance {
                     return chain.proceed(newRequest)
                 }
             })
-            .connectTimeout(2, TimeUnit.SECONDS)
-//            .addInterceptor(loggingInterceptor)
             .build()
 
     val gson: Gson = GsonBuilder().setLenient().create()
