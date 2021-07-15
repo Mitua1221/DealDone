@@ -15,20 +15,23 @@ import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
 import com.arjental.dealdone.repository.Actualizer
 import com.arjental.dealdone.repository.Repository
+import javax.inject.Inject
 
 private const val TAG = "TasksWorkerActualizatio"
 
 class TasksWorkerActualization(val context: Context, workerParams: WorkerParameters) :
     CoroutineWorker(context, workerParams) {
 
+    @Inject
+    lateinit var repository: Repository
+
+    @Inject
+    lateinit var actualizer: Actualizer
+
     override suspend fun doWork(): Result {
 
         Log.d(TAG, 11.toString())
 
-        Repository.initialize(context)
-        val repository = Repository.get()
-        Actualizer.initialize()
-        val actualizer = Actualizer.get()
         val doWork = Translator.needToUpdate.compareAndSet(true, false)
 
         Log.d(TAG, doWork.toString())

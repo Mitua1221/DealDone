@@ -1,0 +1,3 @@
+package com.arjental.dealdone.network.interfaces
+
+interface RetrofitInstanceInterface

@@ -2,7 +2,6 @@ package com.arjental.dealdone.delegates
 
 import android.content.Context
 import android.graphics.Paint
-import android.opengl.Visibility
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,9 +16,8 @@ import com.arjental.dealdone.Translator
 import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
 import com.arjental.dealdone.models.TaskItemPriorities
-import com.arjental.dealdone.userinterface.TasksFragment
 import com.arjental.dealdone.viewholders.TaskViewHolder
-import com.arjental.dealdone.viewmodels.TasksFagmentViewModel
+import com.arjental.dealdone.viewmodels.TasksFragmentViewModel
 
 class TaskItemDelegate(context: Context, viewModels: ViewModel) : Delegate {
 
@@ -70,7 +68,7 @@ class TaskItemDelegate(context: Context, viewModels: ViewModel) : Delegate {
                 taskViewHolder.taskTextView.strike = false
                 taskViewHolder.taskTextView.setTextColor(colorBlack)
             }
-            if (viewModel is TasksFagmentViewModel) {
+            if (viewModel is TasksFragmentViewModel) {
                 taskViewHolder.checkBox.setOnClickListener {
                     if (it is CheckBox) {
                         if (it.isChecked) {

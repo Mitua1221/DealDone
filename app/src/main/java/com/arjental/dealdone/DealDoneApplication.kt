@@ -13,31 +13,48 @@ import com.arjental.dealdone.repository.Actualizer
 import com.arjental.dealdone.repository.Repository
 import com.arjental.dealdone.workmanager.TasksWorkerActualization
 import com.arjental.dealdone.workmanager.TasksWorkerNotification
+import dagger.android.AndroidInjector
+import dagger.android.DaggerApplication
+import dagger.android.DispatchingAndroidInjector
+import dagger.android.HasAndroidInjector
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 private const val TAG = "DealDoneApplication"
 const val NOTIFICATION_CHANNEL_ID = "tasks_poll"
 private const val NOTIFICATION_WORK = "NOTIFICATION_WORK"
 private const val UPDATE_WORK = "UPDATE_WORK"
 
-class DealDoneApplication : Application() {
 
-    val appComponent: DealDoneAppComponent by lazy {
-        DaggerDealDoneAppComponent.factory().create(applicationContext)
-    }
+class DealDoneApplication : Application(), HasAndroidInjector {
+
+    lateinit var appComponent: DealDoneAppComponent
+
+    @Inject lateinit var androidInjector : DispatchingAndroidInjector<Any>
+
+    @Inject lateinit var actualizer: Actualizer
 
     override fun onCreate() {
         super.onCreate()
-        Translator
-        Repository.initialize(this)
+        appComponent = DaggerDealDoneAppComponent.factory().create(this)
 
-        Actualizer.initialize()
-        Actualizer.get().actualize()
+        Translator
+
+        appComponent.injectApplication(this)
+
+        actualizer.actualize()
+
+//        Repository.initialize(this)
+
+//        Actualizer.initialize()
+//        Actualizer.get().actualize()
 
         setChannels()
         setNotificationWorker(this)
         setActualizationWorker(this)
     }
+
+    override fun androidInjector(): AndroidInjector<Any> = androidInjector
 
     private fun setChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -64,11 +81,11 @@ class DealDoneApplication : Application() {
             periodicRequest
         )
 
-        val workRequest = OneTimeWorkRequest
-            .Builder(TasksWorkerNotification::class.java)
-            .build()
-        WorkManager.getInstance(context)
-            .enqueue(workRequest)
+//        val workRequest = OneTimeWorkRequest
+//            .Builder(TasksWorkerNotification::class.java)
+//            .build()
+//        WorkManager.getInstance(context)
+//            .enqueue(workRequest)
     }
 
     private fun setActualizationWorker(context: Context) {
@@ -91,5 +108,8 @@ class DealDoneApplication : Application() {
 //            .enqueue(workRequest)
 
     }
+
+
+
 
 }

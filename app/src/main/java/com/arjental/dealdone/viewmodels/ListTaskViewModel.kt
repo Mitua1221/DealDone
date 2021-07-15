@@ -13,17 +13,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.*
+import javax.inject.Inject
 
 private const val TAG = "TasksFagmentViewModel"
 
-class TasksFagmentViewModel : ViewModel() {
+class TasksFragmentViewModel : ViewModel() {
 
     var isHidden = true
     val pasteList: MutableLiveData<List<TaskItem>> = MutableLiveData()
     val tasksList: MutableLiveData<List<TaskItem>> = MutableLiveData()
     var recyclerList: List<TaskItem> = emptyList()
-    val actualizer = Actualizer.get()
     val qualitySolvedChange: MutableLiveData<Boolean> = MutableLiveData(true)
+
+    @Inject
+    lateinit var actualizer: Actualizer
 
     init {
         viewModelScope.launch {

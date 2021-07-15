@@ -1,5 +1,6 @@
 package com.arjental.dealdone.di
 
+import com.arjental.dealdone.DealDoneApplication
 import com.arjental.dealdone.databases.tasksdatabase.TasksDb
 import com.arjental.dealdone.databases.tasksdatabase.interfaces.TasksDbInterface
 import com.arjental.dealdone.repository.Actualizer
@@ -10,17 +11,12 @@ import com.arjental.dealdone.repository.interfaces.ConverterFromApiInterface
 import com.arjental.dealdone.repository.interfaces.RepositoryInterface
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 
 @Module
-abstract class RepositoryModule {
+abstract class DatabaseModule {
 
     @Binds
-    abstract fun provideRepository(repository: Repository): RepositoryInterface
-
-    @Binds
-    abstract fun provideConverterFromApi(converterFromApi: ConverterFromApi): ConverterFromApiInterface
-
-    @Binds
-    abstract fun provideActualizer(actualizer: Actualizer): ActualizerInterface
+    abstract fun provideTaskDb(tasksDb: TasksDb): TasksDbInterface
 
 }

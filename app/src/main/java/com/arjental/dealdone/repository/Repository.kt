@@ -15,12 +15,17 @@ import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
-
 private const val TAG = "Repository"
 
 @Singleton
-class Repository @Inject constructor(context: Context, tasksConstDatabase: TasksDb, converterConstFromApi: ConverterFromApi): RepositoryInterface {
+class Repository @Inject constructor(
+    context: Context,
+    tasksConstDatabase: TasksDb,
+    converterConstFromApi: ConverterFromApi,
+    retrofitInj: RetrofitInstance,
+) : RepositoryInterface {
 
+    private val retrofit = retrofitInj
     private val tasksDatabase = tasksConstDatabase
     private val converterFromApi = converterConstFromApi
 
@@ -51,7 +56,7 @@ class Repository @Inject constructor(context: Context, tasksConstDatabase: Tasks
     //API
 
     suspend fun getTasks(): Pair<List<TaskItem>, Boolean> = try {
-        val list = RetrofitInstance.api.getTasks()
+        val list = retrofit.api.getTasks()
         if (list.isSuccessful) {
             Pair(converterFromApi.convertFromApiTaskListToTaskItemList(list.body()), true)
         } else {
@@ -64,7 +69,7 @@ class Repository @Inject constructor(context: Context, tasksConstDatabase: Tasks
     }
 
     suspend fun getTasksDemo(): Pair<List<TaskItem>, Boolean> = try {
-        val list: Call<List<ItemFromApi>> = RetrofitInstance.api.getTasksDemo()
+        val list: Call<List<ItemFromApi>> = retrofit.api.getTasksDemo()
 
         list.enqueue(object : Callback<List<ItemFromApi>> {
             override fun onResponse(
@@ -96,7 +101,7 @@ class Repository @Inject constructor(context: Context, tasksConstDatabase: Tasks
 
     suspend fun pushTask(setTask: TaskItem): TaskItem? {
         try {
-            val changedItem = RetrofitInstance.api.pushTask(converterFromApi.convertFromTaskItemToApiItem(setTask))
+            val changedItem = retrofit.api.pushTask(converterFromApi.convertFromTaskItemToApiItem(setTask))
             if (changedItem.isSuccessful) {
                 return converterFromApi.convertFromApiItemToTaskItem(changedItem.body())
             } else {
@@ -110,7 +115,7 @@ class Repository @Inject constructor(context: Context, tasksConstDatabase: Tasks
 
     suspend fun updateTask(taskToUpdate: TaskItem): TaskItem? {
         try {
-            val item = RetrofitInstance.api.updateTask(
+            val item = retrofit.api.updateTask(
                 taskId = taskToUpdate.id.toString(),
                 task = converterFromApi.convertFromTaskItemToApiItem(taskToUpdate)
             )
@@ -127,7 +132,7 @@ class Repository @Inject constructor(context: Context, tasksConstDatabase: Tasks
 
     suspend fun deleteTask(item: TaskItem): TaskItem? {
         try {
-            val list = RetrofitInstance.api.deleteTask(item.id.toString())
+            val list = retrofit.api.deleteTask(item.id.toString())
             if (list.isSuccessful) {
                 return converterFromApi.convertFromApiItemToTaskItem(list.body())
             } else {
@@ -141,7 +146,7 @@ class Repository @Inject constructor(context: Context, tasksConstDatabase: Tasks
 
     suspend fun syncTasks(toDelete: List<String>, toUpdate: List<TaskItem>): List<TaskItem> {
         try {
-            val list = RetrofitInstance.api.synchronizedTasks(
+            val list = retrofit.api.synchronizedTasks(
                 SyncItemsFromApi(
                     deleted = toDelete,
                     other = converterFromApi.convertFromTaskItemListToApiTaskList(toUpdate)
@@ -158,19 +163,19 @@ class Repository @Inject constructor(context: Context, tasksConstDatabase: Tasks
         return emptyList()
     }
 
-    companion object {
-        private var INSTANCE: Repository? = null
-        fun initialize(context: Context) {
-            if (INSTANCE == null) {
-                TasksDb.initialize(context)
-                ConverterFromApi.initialize()
-                INSTANCE = Repository(context, TasksDb.get(), ConverterFromApi.get())
-            }
-        }
-
-        fun get(): Repository {
-            return INSTANCE ?: throw IllegalStateException("Repository first must be initialized")
-        }
-    }
+//    companion object {
+//        private var INSTANCE: Repository? = null
+//        fun initialize(context: Context) {
+//            if (INSTANCE == null) {
+//                TasksDb.initialize(context)
+//                ConverterFromApi.initialize()
+//                INSTANCE = Repository(context, TasksDb.get(), ConverterFromApi.get())
+//            }
+//        }
+//
+//        fun get(): Repository {
+//            return INSTANCE ?: throw IllegalStateException("Repository first must be initialized")
+//        }
+//    }
 
 }

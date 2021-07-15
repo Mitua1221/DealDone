@@ -11,23 +11,25 @@ import androidx.work.WorkerParameters
 import com.arjental.dealdone.MainActivity
 import com.arjental.dealdone.NOTIFICATION_CHANNEL_ID
 import com.arjental.dealdone.R
+import com.arjental.dealdone.repository.Actualizer
 import com.arjental.dealdone.repository.Repository
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
 private const val TAG = "TasksWorkerNotification"
 
 class TasksWorkerNotification(val context: Context, workerParams: WorkerParameters) :
     CoroutineWorker(context, workerParams) {
 
+    @Inject
+    lateinit var repository: Repository
+
     override suspend fun doWork(): Result {
 
         val date = SimpleDateFormat("HH").format(Date())
 
         if (date == "09") {
-
-            Repository.initialize(context)
-            val repository = Repository.get()
 
             val tasks = repository.getTasksFromDatabase()
 

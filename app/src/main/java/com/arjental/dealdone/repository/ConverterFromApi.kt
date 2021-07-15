@@ -82,17 +82,17 @@ class ConverterFromApi @Inject constructor(): ConverterFromApiInterface {
 
     suspend inline fun currentDate() = Calendar.getInstance().time.time
 
-    companion object {
-        private var INSTANCE: ConverterFromApi? = null
-        fun initialize() {
-            if (INSTANCE == null) {
-                INSTANCE = ConverterFromApi()
-            }
-        }
-
-        fun get(): ConverterFromApi {
-            return INSTANCE ?: throw IllegalStateException("ConverterFromApi first must be initialized")
-        }
-    }
+//    companion object {
+//        private var INSTANCE: ConverterFromApi? = null
+//        fun initialize() {
+//            if (INSTANCE == null) {
+//                INSTANCE = ConverterFromApi()
+//            }
+//        }
+//
+//        fun get(): ConverterFromApi {
+//            return INSTANCE ?: throw IllegalStateException("ConverterFromApi first must be initialized")
+//        }
+//    }
 
 }

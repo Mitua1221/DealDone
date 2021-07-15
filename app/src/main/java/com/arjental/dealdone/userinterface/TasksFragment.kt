@@ -9,16 +9,11 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequest
-import androidx.work.WorkManager
 import com.arjental.dealdone.R
 import com.arjental.dealdone.Translator
 import com.arjental.dealdone.delegates.*
@@ -26,20 +21,18 @@ import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
 import com.arjental.dealdone.recycler.SwipeToDeleteCallback
 import com.arjental.dealdone.recycler.TaskListDiffUtil
-import com.arjental.dealdone.viewmodels.TasksFagmentViewModel
+import com.arjental.dealdone.viewmodels.TasksFragmentViewModel
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 
 private const val TAG = "DealsFragment"
 
 class TasksFragment : Fragment() {
 
-    private val tvm: TasksFagmentViewModel by lazy {
-        ViewModelProvider(requireActivity()).get(TasksFagmentViewModel::class.java)
+    private val tvm: TasksFragmentViewModel by lazy {
+        ViewModelProvider(requireActivity()).get(TasksFragmentViewModel::class.java)
     }
 
     private lateinit var tasksRecyclerView: RecyclerView

@@ -17,7 +17,9 @@ class Actualizer @Inject constructor(): ActualizerInterface {
 
     private val actualizationScope =
         CoroutineScope(Dispatchers.IO + CoroutineName("ActualizationScope"))
-    private val repository = Repository.get()
+
+    @Inject
+    lateinit var repository: Repository
 
     fun actualize() {
 
@@ -236,17 +238,17 @@ class Actualizer @Inject constructor(): ActualizerInterface {
         }
     }
 
-    companion object {
-        private var INSTANCE: Actualizer? = null
-        fun initialize() {
-            if (INSTANCE == null) {
-                INSTANCE = Actualizer()
-            }
-        }
-
-        fun get(): Actualizer {
-            return INSTANCE ?: throw IllegalStateException("Actualizer first must be initialized")
-        }
-    }
+//    companion object {
+//        private var INSTANCE: Actualizer? = null
+//        fun initialize() {
+//            if (INSTANCE == null) {
+//                INSTANCE = Actualizer()
+//            }
+//        }
+//
+//        fun get(): Actualizer {
+//            return INSTANCE ?: throw IllegalStateException("Actualizer first must be initialized")
+//        }
+//    }
 
 }

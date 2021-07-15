@@ -1,7 +1,6 @@
 package com.arjental.dealdone.delegates
 
 import android.content.Context
-import android.content.res.Resources
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,9 +13,8 @@ import com.arjental.dealdone.Translator
 import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
 import com.arjental.dealdone.models.TaskItemPriorities
-import com.arjental.dealdone.userinterface.TasksFragment
 import com.arjental.dealdone.viewholders.TaskWithTimeViewHolder
-import com.arjental.dealdone.viewmodels.TasksFagmentViewModel
+import com.arjental.dealdone.viewmodels.TasksFragmentViewModel
 import java.text.DateFormat
 import java.util.*
 
@@ -72,7 +70,7 @@ class TaskItemDelegateWithTime(context: Context, viewModels: ViewModel) : Delega
                     taskWithTimeViewHolder.priorIcon.visibility = View.VISIBLE
                 }
             }
-            if (viewModel is TasksFagmentViewModel) {
+            if (viewModel is TasksFragmentViewModel) {
                 taskWithTimeViewHolder.checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
                     if (isChecked) {
                         taskWithTimeViewHolder.taskTextView.strike = true

@@ -19,7 +19,7 @@ class LoadingFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        (requireActivity().application as DealDoneApplication).appComponent.inject(this)
+//        (requireActivity().application as DealDoneApplication).appComponent.inject(this)
     }
 
     override fun onCreateView(

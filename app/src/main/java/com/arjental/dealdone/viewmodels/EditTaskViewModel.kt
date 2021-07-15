@@ -10,11 +10,14 @@ import com.arjental.dealdone.models.TaskItemPriorities
 import com.arjental.dealdone.repository.Actualizer
 import kotlinx.coroutines.launch
 import java.util.*
+import javax.inject.Inject
 
 class EditTaskViewModel : ViewModel() {
 
     val newTask: MutableLiveData<TaskItem> = MutableLiveData(null)
-    val actualizer = Actualizer.get()
+
+    @Inject
+    lateinit var actualizer: Actualizer
 
     fun createNewTask() {
         newTask.value = TaskItem(
