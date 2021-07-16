@@ -1,5 +1,6 @@
 package com.arjental.dealdone.userinterface
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,9 +15,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.arjental.dealdone.DealDoneApplication
 import com.arjental.dealdone.R
 import com.arjental.dealdone.Translator
 import com.arjental.dealdone.delegates.*
+import com.arjental.dealdone.delegates.interfaces.Delegate
+import com.arjental.dealdone.di.factories.viewmodelfactory.ViewModelFactory
 import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
 import com.arjental.dealdone.recycler.SwipeToDeleteCallback
@@ -25,17 +29,20 @@ import com.arjental.dealdone.viewmodels.TasksFragmentViewModel
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import javax.inject.Inject
 import kotlin.math.abs
 
 private const val TAG = "DealsFragment"
 
 class TasksFragment : Fragment() {
 
-    private val tvm: TasksFragmentViewModel by lazy {
-        ViewModelProvider(requireActivity()).get(TasksFragmentViewModel::class.java)
-    }
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
 
+    lateinit var tvm: TasksFragmentViewModel
     private lateinit var tasksRecyclerView: RecyclerView
+
+    @Inject lateinit var translator: Translator
 
     private val taskAdapter by lazy {
         TasksAdapterDelegates(
@@ -56,6 +63,11 @@ class TasksFragment : Fragment() {
     private lateinit var appBarLayout: AppBarLayout
     private lateinit var hideImageButton: ImageButton
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        (requireActivity().application as DealDoneApplication).appComponent.inject(this)
+        tvm = ViewModelProvider(requireActivity(), viewModelFactory).get(TasksFragmentViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -191,19 +203,19 @@ class TasksFragment : Fragment() {
     }
 
     override fun onResume() {
-        if (Translator.editedTask.value != null) {
-            when (Translator.editedTask.value!!.state) {
+        if (translator.editedTask.value != null) {
+            when (translator.editedTask.value!!.state) {
                 ItemState.DELETED -> {
-                    tvm.deleteElement(Translator.editedTask.value!!.copy())
-                    Translator.editedTask.value = null
+                    tvm.deleteElement(translator.editedTask.value!!.copy())
+                    translator.editedTask.value = null
                 }
                 ItemState.NEW -> {
-                    tvm.addElement(Translator.editedTask.value!!.copy())
-                    Translator.editedTask.value = null
+                    tvm.addElement(translator.editedTask.value!!.copy())
+                    translator.editedTask.value = null
                 }
                 ItemState.EXIST -> {
-                    tvm.changeElement(Translator.editedTask.value!!.copy())
-                    Translator.editedTask.value = null
+                    tvm.changeElement(translator.editedTask.value!!.copy())
+                    translator.editedTask.value = null
                 }
                 else -> IllegalStateException().addSuppressed(Throwable(message = "Illegal Item State"))
             }

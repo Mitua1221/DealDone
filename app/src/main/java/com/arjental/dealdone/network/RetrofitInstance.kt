@@ -47,7 +47,7 @@ class RetrofitInstance @Inject constructor(): RetrofitInstanceInterface {
             .build()
     }
 
-    val api: TasksApi by lazy {
+    override val api: TasksApi by lazy {
         retrofit.create(TasksApi::class.java)
     }
 

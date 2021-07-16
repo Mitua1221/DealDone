@@ -18,13 +18,14 @@ class Actualizer @Inject constructor(): ActualizerInterface {
     private val actualizationScope =
         CoroutineScope(Dispatchers.IO + CoroutineName("ActualizationScope"))
 
-    @Inject
-    lateinit var repository: Repository
+    @Inject lateinit var repository: Repository
+
+    @Inject lateinit var translator: Translator
 
     fun actualize() {
 
         actualizationScope.launch {
-            val doWork = Translator.needToUpdate.compareAndSet(true, false)
+            val doWork = translator.needToUpdate.compareAndSet(true, false)
             if (doWork) {
                 val taskListFromServerA = async { repository.getTasks() }
                 val taskListFromDbA = async { repository.getTasksFromDatabase() }
@@ -41,39 +42,34 @@ class Actualizer @Inject constructor(): ActualizerInterface {
 
                     Triple(true, false, false) -> {//serv - emty | avil - not | db - not empty
                         val listWithoutDeleted = notDeleted(taskListFromDb!!)
-                        Translator.taskListFlow.emit(listWithoutDeleted)
-//                        withContext (Dispatchers.Main) { Translator.taskList.value = listWithoutDeleted }
+                        translator.taskListFlow.emit(listWithoutDeleted)
                         updateServerTasks(updList = emptyList(), delList = deleteOnServer(taskListFromDb))
                         //отправляем только на удаление, мы не знаем ничего об актуальности тасков на серве
                     }
 
                     Triple(true, true, false) -> {//serv - emty | avil - yes | db - not empty
                         val listWithoutDeleted = notDeleted(taskListFromDb!!)
-//                        withContext (Dispatchers.Main) { Translator.taskList.value = listWithoutDeleted }
-                        Translator.taskListFlow.emit(listWithoutDeleted)
+                        translator.taskListFlow.emit(listWithoutDeleted)
                         updateServerTasks(updList = listWithoutDeleted, delList = emptyList())
                         //Отправить все, состояние которых не удаленные
                     }
 
                     Triple(false, true, true) -> {//serv - not emty | avil - yes | db - empty
-//                        withContext (Dispatchers.Main) { Translator.taskList.value = taskListFromServer.first }
-                        Translator.taskListFlow.emit(taskListFromServer.first)
+                        translator.taskListFlow.emit(taskListFromServer.first)
                         repository.setTasksToDatabase(taskListFromServer.first)
                         //просто вставляем таски в бз
                     }
 
                     Triple(false, true, false) -> {//serv - not emty | avil - yes | db - not empty
                         val list = comparatorDbListAndApiList(taskListFromDb!!, taskListFromServer.first)
-//                        withContext (Dispatchers.Main) { Translator.taskList.value = list[0] }
-                        Translator.taskListFlow.emit(list[0])
+                        translator.taskListFlow.emit(list[0])
                         updateDatabaseTasks(list[1])
                         updateServerTasks(updList = list[2], delList = list[3])
                         //обновляем все
                     }
 
                     else -> {
-                        Translator.taskListFlow.emit(emptyList())
-//                        withContext (Dispatchers.Main) { Translator.taskList.value = emptyList() }
+                        translator.taskListFlow.emit(emptyList())
                         //serv - emty | avil - not | db - empty
                         //serv - emty | avil - yes | db - empty
                     }
@@ -81,59 +77,6 @@ class Actualizer @Inject constructor(): ActualizerInterface {
             }
         }
 
-
-
-//        actualizationScope.launch {
-//            val taskListFromServerA = async { repository.getTasks() }
-//            val taskListFromDbA = async { repository.getTasksFromDatabase() }
-//            val taskListFromDb = taskListFromDbA.await()
-//            val taskListFromServer = taskListFromServerA.await()
-//            Log.d(TAG, "1")
-//            if (taskListFromServer.second) { //if we got something from server
-//                if (taskListFromDb == null || taskListFromDb == emptyList<TaskItem>()) { //if local database is empty
-//                    if (taskListFromServer.first != emptyList<TaskItem>()) { //if local database is empty, list from server isn't
-//                        Log.d(TAG, "2")
-//                        withContext (Dispatchers.Main) { Translator.taskList.value = taskListFromServer.first }
-//                        repository.setTasksToDatabase(taskListFromServer.first)
-//                    } else { //if local database is empty, list from server empty too
-//                        Log.d(TAG, "3")
-//                        withContext (Dispatchers.Main) { Translator.taskList.value = emptyList() }
-//                    }
-//                } else { //if local database is not empty
-//                    if (taskListFromServer.first != emptyList<TaskItem>()) {//if local database is not empty, server is not empty
-//                        Log.d(TAG, "4")
-//                        val actualList =
-//                            comparatorDbListAndApiList(taskListFromDb, taskListFromServer.first)
-//                        withContext (Dispatchers.Main) { Translator.taskList.value = actualList[0] }
-//                        val defDb = async {
-//                            if (actualList[1].isNotEmpty()) {
-//                                updateDatabaseTasks(actualList[1])
-//                            }
-//                        }
-//                        val defServ = async {
-//                            if (actualList[2].isNotEmpty() || actualList[3].isNotEmpty()) {
-//                                updateServerTasks(updList = actualList[2], delList = actualList[3])
-//                            }
-//                        }
-//                        defDb.await()
-//                        defServ.await()
-//                    } else {//if local database is not empty, server is empty
-//                        Log.d(TAG, "5")
-//                        withContext (Dispatchers.Main) { Translator.taskList.value = taskListFromDb }
-//                        addTasksToServer(taskListFromDb)
-//                    }
-//                }
-//            } else { //we doesn't got something from server, work local
-//                if (taskListFromDb == null || taskListFromDb == emptyList<TaskItem>()) {
-//                    Log.d(TAG, "6")
-//                    withContext (Dispatchers.Main) { Translator.taskList.value = emptyList() }
-//                } else {
-//                    Log.d(TAG, "7")
-//                    withContext (Dispatchers.Main) { Translator.taskList.value = taskListFromDb }
-//                }
-//            }
-//            this.cancel()
-//        }
     }
 
     private suspend fun notDeleted(taskListFromDb: List<TaskItem>) = taskListFromDb.filterNot { it.state == ItemState.DELETED }
@@ -237,18 +180,5 @@ class Actualizer @Inject constructor(): ActualizerInterface {
             } else repository.deleteTaskFromDatabase(task)
         }
     }
-
-//    companion object {
-//        private var INSTANCE: Actualizer? = null
-//        fun initialize() {
-//            if (INSTANCE == null) {
-//                INSTANCE = Actualizer()
-//            }
-//        }
-//
-//        fun get(): Actualizer {
-//            return INSTANCE ?: throw IllegalStateException("Actualizer first must be initialized")
-//        }
-//    }
 
 }

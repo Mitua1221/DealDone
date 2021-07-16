@@ -36,9 +36,8 @@ class DealDoneApplication : Application(), HasAndroidInjector {
 
     override fun onCreate() {
         super.onCreate()
-        appComponent = DaggerDealDoneAppComponent.factory().create(this)
 
-        Translator
+        appComponent = DaggerDealDoneAppComponent.factory().create(this)
 
         appComponent.injectApplication(this)
 
@@ -69,43 +68,43 @@ class DealDoneApplication : Application(), HasAndroidInjector {
     }
 
     private fun setNotificationWorker(context: Context) {
-        val constraints = Constraints.Builder()
-            .build()
-        val periodicRequest = PeriodicWorkRequest
-            .Builder(TasksWorkerNotification::class.java, 1, TimeUnit.HOURS)
-            .setConstraints(constraints)
-            .build()
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            NOTIFICATION_WORK,
-            ExistingPeriodicWorkPolicy.KEEP,
-            periodicRequest
-        )
-
-//        val workRequest = OneTimeWorkRequest
-//            .Builder(TasksWorkerNotification::class.java)
+//        val constraints = Constraints.Builder()
 //            .build()
-//        WorkManager.getInstance(context)
-//            .enqueue(workRequest)
+//        val periodicRequest = PeriodicWorkRequest
+//            .Builder(TasksWorkerNotification::class.java, 1, TimeUnit.HOURS)
+//            .setConstraints(constraints)
+//            .build()
+//        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+//            NOTIFICATION_WORK,
+//            ExistingPeriodicWorkPolicy.KEEP,
+//            periodicRequest
+//        )
+
+        val workRequest = OneTimeWorkRequest
+            .Builder(TasksWorkerNotification::class.java)
+            .build()
+        WorkManager.getInstance(context)
+            .enqueue(workRequest)
     }
 
     private fun setActualizationWorker(context: Context) {
-        val constraints = Constraints.Builder()
-            .build()
-        val periodicRequest = PeriodicWorkRequest
-            .Builder(TasksWorkerActualization::class.java, 8, TimeUnit.HOURS)
-            .setConstraints(constraints)
-            .build()
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            UPDATE_WORK,
-            ExistingPeriodicWorkPolicy.KEEP,
-            periodicRequest
-        )
-
-//        val workRequest = OneTimeWorkRequest
-//            .Builder(TasksWorkerActualization::class.java)
+//        val constraints = Constraints.Builder()
 //            .build()
-//        WorkManager.getInstance(context)
-//            .enqueue(workRequest)
+//        val periodicRequest = PeriodicWorkRequest
+//            .Builder(TasksWorkerActualization::class.java, 8, TimeUnit.HOURS)
+//            .setConstraints(constraints)
+//            .build()
+//        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+//            UPDATE_WORK,
+//            ExistingPeriodicWorkPolicy.KEEP,
+//            periodicRequest
+//        )
+
+        val workRequest = OneTimeWorkRequest
+            .Builder(TasksWorkerActualization::class.java)
+            .build()
+        WorkManager.getInstance(context)
+            .enqueue(workRequest)
 
     }
 

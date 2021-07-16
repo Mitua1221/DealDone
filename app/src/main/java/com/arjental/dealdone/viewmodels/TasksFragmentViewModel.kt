@@ -2,7 +2,6 @@ package com.arjental.dealdone.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.arjental.dealdone.Translator
 import com.arjental.dealdone.models.ItemState
@@ -17,7 +16,7 @@ import javax.inject.Inject
 
 private const val TAG = "TasksFagmentViewModel"
 
-class TasksFragmentViewModel : ViewModel() {
+class TasksFragmentViewModel @Inject constructor(val translator: Translator, val actualizer: Actualizer) : ViewModel() {
 
     var isHidden = true
     val pasteList: MutableLiveData<List<TaskItem>> = MutableLiveData()
@@ -25,23 +24,30 @@ class TasksFragmentViewModel : ViewModel() {
     var recyclerList: List<TaskItem> = emptyList()
     val qualitySolvedChange: MutableLiveData<Boolean> = MutableLiveData(true)
 
-    @Inject
-    lateinit var actualizer: Actualizer
+//    @Inject lateinit var translator: Translator
+//    @Inject lateinit var actualizer: Actualizer
+
+//    private val translator = translator
+//    private val actualizer = actualizer
 
     init {
         viewModelScope.launch {
-            Translator.taskListFlow.collect {
+            translator.taskListFlow.collect {
                 launch(Dispatchers.Main) { tasksList.value = it }
             }
         }
     }
 
     fun updateOrAddTask(taskItem: TaskItem) {
-        actualizer.updateOrAddTask(taskItem)
+        this.actualizer.updateOrAddTask(taskItem)
     }
 
     fun deleteTask(task: TaskItem) {
         actualizer.deleteTask(task)
+    }
+
+    fun getTaskFromTranslator(item: TaskItem) {
+        translator.editedTask.value = item.copy()
     }
 
     fun setSortedListToPaste(isHid: Boolean) {

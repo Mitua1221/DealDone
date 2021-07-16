@@ -11,6 +11,7 @@ import com.arjental.dealdone.MainActivity
 import com.arjental.dealdone.NOTIFICATION_CHANNEL_ID
 import com.arjental.dealdone.R
 import com.arjental.dealdone.Translator
+import com.arjental.dealdone.di.ContextInjection
 import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
 import com.arjental.dealdone.repository.Actualizer
@@ -28,11 +29,18 @@ class TasksWorkerActualization(val context: Context, workerParams: WorkerParamet
     @Inject
     lateinit var actualizer: Actualizer
 
+    @Inject
+    lateinit var translator: Translator
+
+    init {
+        ContextInjection.inject(to = this, with = context)
+    }
+
     override suspend fun doWork(): Result {
 
         Log.d(TAG, 11.toString())
 
-        val doWork = Translator.needToUpdate.compareAndSet(true, false)
+        val doWork = translator.needToUpdate.compareAndSet(true, false)
 
         Log.d(TAG, doWork.toString())
 
@@ -45,7 +53,7 @@ class TasksWorkerActualization(val context: Context, workerParams: WorkerParamet
 
             val serverIsEmpty = taskListFromServer.first.isEmpty()
             val serverIsAviliable = taskListFromServer.second
-            val dbIsEmpty= taskListFromDb.isNullOrEmpty()
+            val dbIsEmpty = taskListFromDb.isNullOrEmpty()
 
             val state = Triple(serverIsEmpty, serverIsAviliable, dbIsEmpty)
 
@@ -54,13 +62,19 @@ class TasksWorkerActualization(val context: Context, workerParams: WorkerParamet
             when (state) {
 
                 Triple(true, false, false) -> {//serv - emty | avil - not | db - not empty
-                    actualizer.updateServerTasks(updList = emptyList(), delList = deleteOnServer(taskListFromDb!!))
+                    actualizer.updateServerTasks(
+                        updList = emptyList(),
+                        delList = deleteOnServer(taskListFromDb!!)
+                    )
                     s = "1"
                     //отправляем только на удаление, мы не знаем ничего об актуальности тасков на серве
                 }
 
                 Triple(true, true, false) -> {//serv - emty | avil - yes | db - not empty
-                    actualizer.updateServerTasks(updList = setOnServer(taskListFromDb!!), delList = emptyList())
+                    actualizer.updateServerTasks(
+                        updList = setOnServer(taskListFromDb!!),
+                        delList = emptyList()
+                    )
                     s = "2"
                     //Отправить все, состояние которых не удаленные
                 }
@@ -72,7 +86,10 @@ class TasksWorkerActualization(val context: Context, workerParams: WorkerParamet
                 }
 
                 Triple(false, true, false) -> {//serv - not emty | avil - yes | db - not empty
-                    val list = actualizer.comparatorDbListAndApiList(taskListFromDb!!, taskListFromServer.first)
+                    val list = actualizer.comparatorDbListAndApiList(
+                        taskListFromDb!!,
+                        taskListFromServer.first
+                    )
                     actualizer.updateDatabaseTasks(list[1])
                     actualizer.updateServerTasks(updList = list[2], delList = list[3])
                     s = "4"

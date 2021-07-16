@@ -1,9 +1,7 @@
 package com.arjental.dealdone.workmanager
 
-
 import android.app.PendingIntent
 import android.content.Context
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.CoroutineWorker
@@ -11,8 +9,9 @@ import androidx.work.WorkerParameters
 import com.arjental.dealdone.MainActivity
 import com.arjental.dealdone.NOTIFICATION_CHANNEL_ID
 import com.arjental.dealdone.R
-import com.arjental.dealdone.repository.Actualizer
+import com.arjental.dealdone.di.ContextInjection
 import com.arjental.dealdone.repository.Repository
+import dagger.android.HasAndroidInjector
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -24,6 +23,12 @@ class TasksWorkerNotification(val context: Context, workerParams: WorkerParamete
 
     @Inject
     lateinit var repository: Repository
+
+    init {
+        ContextInjection.inject(to = this, with = context)
+    }
+
+//    private val repository = Repository(context)
 
     override suspend fun doWork(): Result {
 
@@ -79,5 +84,7 @@ class TasksWorkerNotification(val context: Context, workerParams: WorkerParamete
 
 
     }
+
+
 
 }

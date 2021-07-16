@@ -20,42 +20,32 @@ private const val TAG = "Repository"
 @Singleton
 class Repository @Inject constructor(
     context: Context,
-    tasksConstDatabase: TasksDb,
-    converterConstFromApi: ConverterFromApi,
-    retrofitInj: RetrofitInstance,
 ) : RepositoryInterface {
 
-    private val retrofit = retrofitInj
-    private val tasksDatabase = tasksConstDatabase
-    private val converterFromApi = converterConstFromApi
-
-//    private lateinit var tasksDatabase: TasksDb
-//    private lateinit var converterFromApi: ConverterFromApi
-//
-//    init {
-//        TasksDb.initialize(context)
-//        tasksDatabase = TasksDb.get()
-//        ConverterFromApi.initialize()
-//        converterFromApi = ConverterFromApi.get()
-//    }
+    @Inject
+    lateinit var retrofit: RetrofitInstance
+    @Inject
+    lateinit var tasksDatabase: TasksDb
+    @Inject
+    lateinit var converterFromApi: ConverterFromApi
 
     //Database
 
-    suspend fun setTasksToDatabase(list: List<TaskItem>) = tasksDatabase.setTasks(list)
+    override suspend fun setTasksToDatabase(list: List<TaskItem>) = tasksDatabase.setTasks(list)
 
-    suspend fun updateTaskInDatabase(item: TaskItem) = tasksDatabase.updateTask(item)
+    override suspend fun updateTaskInDatabase(item: TaskItem) = tasksDatabase.updateTask(item)
 
-    suspend fun addTaskToDatabase(item: TaskItem) = tasksDatabase.addTask(item)
+    override suspend fun addTaskToDatabase(item: TaskItem) = tasksDatabase.addTask(item)
 
-    suspend fun getTasksFromDatabase() = tasksDatabase.getTasks()
+    override suspend fun getTasksFromDatabase() = tasksDatabase.getTasks()
 
-    suspend fun getTaskFromDatabase(uuid: UUID) = tasksDatabase.getTask(uuid)
+    override suspend fun getTaskFromDatabase(uuid: UUID) = tasksDatabase.getTask(uuid)
 
-    suspend fun deleteTaskFromDatabase(item: TaskItem) = tasksDatabase.deleteTask(item)
+    override suspend fun deleteTaskFromDatabase(item: TaskItem) = tasksDatabase.deleteTask(item)
 
     //API
 
-    suspend fun getTasks(): Pair<List<TaskItem>, Boolean> = try {
+    override suspend fun getTasks(): Pair<List<TaskItem>, Boolean> = try {
         val list = retrofit.api.getTasks()
         if (list.isSuccessful) {
             Pair(converterFromApi.convertFromApiTaskListToTaskItemList(list.body()), true)
@@ -83,7 +73,7 @@ class Repository @Inject constructor(
                 TODO("Not yet implemented")
             }
 
-        } )
+        })
 
 //        if (list.) {
 //            Pair(converterFromApi.convertFromApiTaskListToTaskItemList(list.body()), true)
@@ -99,13 +89,14 @@ class Repository @Inject constructor(
     }
 
 
-    suspend fun pushTask(setTask: TaskItem): TaskItem? {
+    override suspend fun pushTask(setTask: TaskItem): TaskItem? {
         try {
-            val changedItem = retrofit.api.pushTask(converterFromApi.convertFromTaskItemToApiItem(setTask))
+            val changedItem =
+                retrofit.api.pushTask(converterFromApi.convertFromTaskItemToApiItem(setTask))
             if (changedItem.isSuccessful) {
                 return converterFromApi.convertFromApiItemToTaskItem(changedItem.body())
             } else {
-                Log.w(TAG, "pushTask = "  + changedItem.code().toString())
+                Log.w(TAG, "pushTask = " + changedItem.code().toString())
             }
         } catch (e: Exception) {
             Log.e(TAG, "pushTask EXCEPTION $e")
@@ -113,7 +104,7 @@ class Repository @Inject constructor(
         return null
     }
 
-    suspend fun updateTask(taskToUpdate: TaskItem): TaskItem? {
+    override suspend fun updateTask(taskToUpdate: TaskItem): TaskItem? {
         try {
             val item = retrofit.api.updateTask(
                 taskId = taskToUpdate.id.toString(),
@@ -122,7 +113,7 @@ class Repository @Inject constructor(
             if (item.isSuccessful) {
                 return converterFromApi.convertFromApiItemToTaskItem(item.body())
             } else {
-                Log.w(TAG, "updateTask = "  + item.code().toString())
+                Log.w(TAG, "updateTask = " + item.code().toString())
             }
         } catch (e: Exception) {
             Log.e(TAG, "updateTask EXCEPTION $e")
@@ -130,13 +121,13 @@ class Repository @Inject constructor(
         return null
     }
 
-    suspend fun deleteTask(item: TaskItem): TaskItem? {
+    override suspend fun deleteTask(item: TaskItem): TaskItem? {
         try {
             val list = retrofit.api.deleteTask(item.id.toString())
             if (list.isSuccessful) {
                 return converterFromApi.convertFromApiItemToTaskItem(list.body())
             } else {
-                Log.w(TAG, "deleteTask = "  + list.code().toString())
+                Log.w(TAG, "deleteTask = " + list.code().toString())
             }
         } catch (e: Exception) {
             Log.e(TAG, "deleteTask EXCEPTION $e")
@@ -144,7 +135,7 @@ class Repository @Inject constructor(
         return null
     }
 
-    suspend fun syncTasks(toDelete: List<String>, toUpdate: List<TaskItem>): List<TaskItem> {
+    override suspend fun syncTasks(toDelete: List<String>, toUpdate: List<TaskItem>): List<TaskItem> {
         try {
             val list = retrofit.api.synchronizedTasks(
                 SyncItemsFromApi(
@@ -155,7 +146,7 @@ class Repository @Inject constructor(
             if (list.isSuccessful) {
                 return converterFromApi.convertFromApiTaskListToTaskItemList(list.body())
             } else {
-                Log.w(TAG, "syncTasks = "  + list.code().toString())
+                Log.w(TAG, "syncTasks = " + list.code().toString())
             }
         } catch (e: Exception) {
             Log.e(TAG, "syncTasks EXCEPTION $e")
@@ -163,19 +154,5 @@ class Repository @Inject constructor(
         return emptyList()
     }
 
-//    companion object {
-//        private var INSTANCE: Repository? = null
-//        fun initialize(context: Context) {
-//            if (INSTANCE == null) {
-//                TasksDb.initialize(context)
-//                ConverterFromApi.initialize()
-//                INSTANCE = Repository(context, TasksDb.get(), ConverterFromApi.get())
-//            }
-//        }
-//
-//        fun get(): Repository {
-//            return INSTANCE ?: throw IllegalStateException("Repository first must be initialized")
-//        }
-//    }
 
 }

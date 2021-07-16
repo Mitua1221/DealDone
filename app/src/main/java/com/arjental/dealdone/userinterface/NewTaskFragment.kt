@@ -1,5 +1,6 @@
 package com.arjental.dealdone.userinterface
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,13 +11,16 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
+import com.arjental.dealdone.DealDoneApplication
 import com.arjental.dealdone.R
 import com.arjental.dealdone.Translator
+import com.arjental.dealdone.di.factories.viewmodelfactory.ViewModelFactory
 import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItemPriorities
 import com.arjental.dealdone.viewmodels.EditTaskViewModel
 import java.text.DateFormat
 import java.util.*
+import javax.inject.Inject
 
 private const val TAG = "NewTaskFragment"
 private const val DIALOG_DATE = "DialogDate"
@@ -24,9 +28,10 @@ private const val REQUEST_DATE = 0
 
 class NewTaskFragment : Fragment() {
 
-    private val evm: EditTaskViewModel by lazy {
-        ViewModelProvider(requireActivity()).get(EditTaskViewModel::class.java)
-    }
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
+    lateinit var evm: EditTaskViewModel
 
     private lateinit var descriptionEditText: EditText
     private lateinit var closeButton: ImageButton
@@ -37,8 +42,16 @@ class NewTaskFragment : Fragment() {
     private lateinit var importanceTextView: TextView
     private lateinit var importancePreviewTextView: TextView
 
+    @Inject lateinit var translator: Translator
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        (requireActivity().application as DealDoneApplication).appComponent.inject(this)
+        evm = ViewModelProvider(requireActivity(), viewModelFactory).get(EditTaskViewModel::class.java)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (Translator.editedTask.value != null) evm.collectTaskFromTranslator() else evm.createNewTask()
+        if (translator.editedTask.value != null) evm.collectTaskFromTranslator() else evm.createNewTask()
         super.onCreate(savedInstanceState)
     }
 
@@ -82,7 +95,7 @@ class NewTaskFragment : Fragment() {
         }
 
         closeButton.setOnClickListener {
-            Translator.editedTask.value = null
+            translator.editedTask.value = null
             evm.newTask.value = null
             NavHostFragment.findNavController(this).popBackStack()
         }
@@ -90,7 +103,7 @@ class NewTaskFragment : Fragment() {
         saveButton.setOnClickListener {
             evm.newTask.value?.text = descriptionEditText.text.toString()
             evm.newTask.value?.updateDate = evm.time()
-            Translator.editedTask.value = evm.newTask.value?.copy()
+            translator.editedTask.value = evm.newTask.value?.copy()
             evm.updateOrAddTask()
             evm.newTask.value = null
             NavHostFragment.findNavController(this).popBackStack()
@@ -100,7 +113,7 @@ class NewTaskFragment : Fragment() {
             if (evm.newTask.value?.state == ItemState.NEW) {
                 evm.newTask.value = null
             } else {
-                Translator.editedTask.value = evm.newTask.value?.copy(state = ItemState.DELETED)
+                translator.editedTask.value = evm.newTask.value?.copy(state = ItemState.DELETED)
                 evm.deleteTask()
                 evm.newTask.value = null
                 NavHostFragment.findNavController(this).popBackStack()
@@ -159,7 +172,7 @@ class NewTaskFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        Translator.timeSelectedFromCalendar.observe(viewLifecycleOwner, {
+        translator.timeSelectedFromCalendar.observe(viewLifecycleOwner, {
 
             if (it != null) {
                 evm.newTask.value?.deadline = it.time
@@ -167,7 +180,7 @@ class NewTaskFragment : Fragment() {
                 val dateTimeFormat: DateFormat =
                     DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault())
                 deadlineTextView.text = dateTimeFormat.format(Date(it.time))
-                Translator.timeSelectedFromCalendar.value = null
+                translator.timeSelectedFromCalendar.value = null
             } else {
                 if (evm.newTask.value?.deadline == null) {
                     dateSwitch.isChecked = false

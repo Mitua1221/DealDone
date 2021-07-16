@@ -2,17 +2,27 @@ package com.arjental.dealdone.userinterface
 
 import android.app.DatePickerDialog
 import android.app.Dialog
+import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.widget.DatePicker
 import androidx.fragment.app.DialogFragment
+import com.arjental.dealdone.DealDoneApplication
 import com.arjental.dealdone.R
 import com.arjental.dealdone.Translator
 import java.util.*
+import javax.inject.Inject
 
 private const val ARG_DATE = "date"
 
 class DatePickerFragment : DialogFragment() {
+
+    @Inject lateinit var translator: Translator
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        (requireActivity().application as DealDoneApplication).appComponent.inject(this)
+    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
@@ -28,7 +38,7 @@ class DatePickerFragment : DialogFragment() {
 
         val dateListener = DatePickerDialog.OnDateSetListener {
                 it: DatePicker, year: Int, month: Int, day: Int ->
-            Translator.timeSelectedFromCalendar.value = GregorianCalendar(year, month, day).time
+            translator.timeSelectedFromCalendar.value = GregorianCalendar(year, month, day).time
         }
 
         return DatePickerDialog(
@@ -44,7 +54,7 @@ class DatePickerFragment : DialogFragment() {
 
     override fun onCancel(dialog: DialogInterface) {
         super.onCancel(dialog)
-        Translator.timeSelectedFromCalendar.value = null
+        translator.timeSelectedFromCalendar.value = null
     }
 
     companion object {

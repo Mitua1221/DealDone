@@ -12,12 +12,15 @@ import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
-class EditTaskViewModel : ViewModel() {
+class EditTaskViewModel @Inject constructor(val translator: Translator, val actualizer: Actualizer) : ViewModel() {
 
     val newTask: MutableLiveData<TaskItem> = MutableLiveData(null)
 
-    @Inject
-    lateinit var actualizer: Actualizer
+//    @Inject lateinit var translator: Translator
+//    @Inject lateinit var actualizer: Actualizer
+
+//    val translator = translator
+//    val actualizer = actualizer
 
     fun createNewTask() {
         newTask.value = TaskItem(
@@ -50,8 +53,8 @@ class EditTaskViewModel : ViewModel() {
     }
 
     fun collectTaskFromTranslator() {
-        newTask.value = Translator.editedTask.value?.copy()
-        Translator.editedTask.value = null
+        newTask.value = translator.editedTask.value?.copy()
+        translator.editedTask.value = null
     }
 
 }

@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.arjental.dealdone.R
-import com.arjental.dealdone.Translator
+import com.arjental.dealdone.delegates.interfaces.Delegate
 import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
 import com.arjental.dealdone.models.TaskItemPriorities
@@ -54,7 +54,7 @@ class TaskItemDelegateWithTime(context: Context, viewModels: ViewModel) : Delega
                 taskWithTimeViewHolder.taskTextView.setTextColor(colorBlack)
             }
             taskWithTimeViewHolder.editImageButton.setOnClickListener {
-                Translator.editedTask.value = item.copy()
+                if (viewModel is TasksFragmentViewModel) viewModel.getTaskFromTranslator(item)
                 it.findNavController().navigate(R.id.action_dealsFragment_to_newTaskFragment)
             }
             when (item.priority) {

@@ -17,9 +17,11 @@ import javax.inject.Inject
 
 class LoadingFragment : Fragment() {
 
+    @Inject lateinit var translator: Translator
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
-//        (requireActivity().application as DealDoneApplication).appComponent.inject(this)
+        (requireActivity().application as DealDoneApplication).appComponent.inject(this)
     }
 
     override fun onCreateView(
@@ -29,13 +31,9 @@ class LoadingFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.loading_fragment, container, false)
 
-        lifecycleScope.launch { Translator.taskListFlow.collect {
+        lifecycleScope.launch { translator.taskListFlow.collect {
             findNavController().navigate(R.id.action_loadingFragment_to_dealsFragment)
         } }
-
-//        Translator.taskList.observe(viewLifecycleOwner, {
-//            if (it != null) findNavController().navigate(R.id.action_loadingFragment_to_dealsFragment)
-//        })
 
         return view
     }

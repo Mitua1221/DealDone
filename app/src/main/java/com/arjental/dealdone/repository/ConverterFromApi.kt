@@ -13,7 +13,7 @@ import javax.inject.Singleton
 @Singleton
 class ConverterFromApi @Inject constructor(): ConverterFromApiInterface {
 
-    suspend inline fun convertFromApiTaskListToTaskItemList(body: List<ItemFromApi>?): List<TaskItem> {
+    override suspend fun convertFromApiTaskListToTaskItemList(body: List<ItemFromApi>?): List<TaskItem> {
         if (body.isNullOrEmpty()) return emptyList() else {
             val list = mutableListOf<TaskItem>()
             body.forEach {
@@ -25,7 +25,7 @@ class ConverterFromApi @Inject constructor(): ConverterFromApiInterface {
         }
     }
 
-    suspend inline fun convertFromTaskItemListToApiTaskList(body: List<TaskItem>?): List<ItemFromApi> {
+    override suspend fun convertFromTaskItemListToApiTaskList(body: List<TaskItem>?): List<ItemFromApi> {
         if (body.isNullOrEmpty()) return emptyList() else {
             val list = mutableListOf<ItemFromApi>()
             body.forEach {
@@ -37,7 +37,7 @@ class ConverterFromApi @Inject constructor(): ConverterFromApiInterface {
         }
     }
 
-    suspend inline fun convertFromTaskItemToApiItem(item: TaskItem): ItemFromApi {
+    override suspend fun convertFromTaskItemToApiItem(item: TaskItem): ItemFromApi {
         return ItemFromApi(
             id = item.id.toString(),
             text = item.text,
@@ -49,7 +49,7 @@ class ConverterFromApi @Inject constructor(): ConverterFromApiInterface {
         )
     }
 
-    suspend inline fun convertFromApiItemToTaskItem(item: ItemFromApi?): TaskItem? {
+    override suspend fun convertFromApiItemToTaskItem(item: ItemFromApi?): TaskItem? {
         return if (item != null) {
             TaskItem(
                 id = UUID.fromString(item.id),
@@ -64,7 +64,7 @@ class ConverterFromApi @Inject constructor(): ConverterFromApiInterface {
         } else null
     }
 
-    suspend inline fun setImportaceToApi(tip: TaskItemPriorities) =
+    override suspend fun setImportaceToApi(tip: TaskItemPriorities) =
         when (tip) {
             TaskItemPriorities.NONE -> "low"
             TaskItemPriorities.MEDIUM -> "basic"
@@ -72,7 +72,7 @@ class ConverterFromApi @Inject constructor(): ConverterFromApiInterface {
             else -> throw IllegalArgumentException("unreal Task Priority setImportaceToApi")
         }
 
-    suspend inline fun setImportanceToTask(importance: String) =
+    override suspend fun setImportanceToTask(importance: String) =
         when (importance) {
             "low" -> TaskItemPriorities.NONE
             "basic" -> TaskItemPriorities.MEDIUM
@@ -80,19 +80,6 @@ class ConverterFromApi @Inject constructor(): ConverterFromApiInterface {
             else -> throw IllegalArgumentException("unreal Task Priority")
         }
 
-    suspend inline fun currentDate() = Calendar.getInstance().time.time
-
-//    companion object {
-//        private var INSTANCE: ConverterFromApi? = null
-//        fun initialize() {
-//            if (INSTANCE == null) {
-//                INSTANCE = ConverterFromApi()
-//            }
-//        }
-//
-//        fun get(): ConverterFromApi {
-//            return INSTANCE ?: throw IllegalStateException("ConverterFromApi first must be initialized")
-//        }
-//    }
+    override suspend fun currentDate() = Calendar.getInstance().time.time
 
 }

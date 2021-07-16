@@ -9,8 +9,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
+import javax.inject.Singleton
 
-object Translator {
+@Singleton
+class Translator @Inject constructor() {
 
     var needToUpdate = AtomicBoolean(true)
 
