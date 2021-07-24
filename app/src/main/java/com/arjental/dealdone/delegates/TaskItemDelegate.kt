@@ -19,9 +19,8 @@ import com.arjental.dealdone.models.TaskItemPriorities
 import com.arjental.dealdone.viewholders.TaskViewHolder
 import com.arjental.dealdone.viewmodels.TasksFragmentViewModel
 
-class TaskItemDelegate(context: Context, viewModels: ViewModel) : Delegate {
+class TaskItemDelegate(val context: Context, private val viewModel: ViewModel) : Delegate {
 
-    private val viewModel = viewModels
     private val colorDone = ResourcesCompat.getColor(context.resources, R.color.label_light_tertiary, context.theme)
     private val colorBlack = ResourcesCompat.getColor(context.resources, R.color.label_light_primary, context.theme)
 

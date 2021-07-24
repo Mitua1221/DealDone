@@ -15,16 +15,14 @@
 
         <CheckBox
             android:id="@+id/task_checkbox"
-            android:layout_width="24dp"
+            android:layout_width="0dp"
             android:layout_height="24dp"
-            android:layout_marginStart="18dp"
+            android:layout_marginStart="10dp"
             android:layout_marginTop="9dp"
-            android:layout_marginBottom="9dp"
-            android:button="@drawable/recycler_checkbox"
+            android:theme="@style/checkbox_theme_usual"
+            app:layout_constraintEnd_toStartOf="@+id/guideline2"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <!--        app:buttonTint="@color/color_light_green"-->
 
         <ImageView
             android:id="@+id/image_priority"
@@ -57,11 +55,11 @@
             android:id="@+id/task_edit_button"
             android:layout_width="30dp"
             android:layout_height="30dp"
+            android:layout_marginTop="6dp"
             android:layout_marginEnd="12dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:foregroundGravity=""
             android:src="@drawable/ic_info_outline"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -14,10 +15,11 @@ import androidx.navigation.fragment.NavHostFragment
 import com.arjental.dealdone.DealDoneApplication
 import com.arjental.dealdone.R
 import com.arjental.dealdone.Translator
-import com.arjental.dealdone.di.factories.viewmodelfactory.ViewModelFactory
+//import com.arjental.dealdone.di.factories.viewmodelfactory.ViewModelFactory
 import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItemPriorities
 import com.arjental.dealdone.viewmodels.EditTaskViewModel
+import com.arjental.dealdone.viewmodels.TasksFragmentViewModel
 import java.text.DateFormat
 import java.util.*
 import javax.inject.Inject
@@ -28,10 +30,13 @@ private const val REQUEST_DATE = 0
 
 class NewTaskFragment : Fragment() {
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
+//    @Inject
+//    lateinit var viewModelFactory: ViewModelFactory
+//
+//    lateinit var evm: EditTaskViewModel
 
     lateinit var evm: EditTaskViewModel
+
 
     private lateinit var descriptionEditText: EditText
     private lateinit var closeButton: ImageButton
@@ -47,11 +52,10 @@ class NewTaskFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         (requireActivity().application as DealDoneApplication).appComponent.inject(this)
-        evm = ViewModelProvider(requireActivity(), viewModelFactory).get(EditTaskViewModel::class.java)
+//        evm = ViewModelProvider(requireActivity(), viewModelFactory).get(EditTaskViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (translator.editedTask.value != null) evm.collectTaskFromTranslator() else evm.createNewTask()
         super.onCreate(savedInstanceState)
     }
 
@@ -60,6 +64,10 @@ class NewTaskFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+      //  evm = ViewModelProvider(requireActivity()).get(EditTaskViewModel::class.java)
+        if (translator.editedTask.value != null) evm.collectTaskFromTranslator() else evm.createNewTask()
+
         val view = inflater.inflate(R.layout.new_task_fragment, container, false)
 
         descriptionEditText = view.findViewById(R.id.new_task_edit_text)
@@ -91,7 +99,7 @@ class NewTaskFragment : Fragment() {
                 importancePreviewTextView.setTextColor(ResourcesCompat.getColor(resources, R.color.color_light_red, requireContext().theme))
                 getString(R.string.importance_high)
             }
-            else -> throw IllegalStateException("Illegal priority of Task")
+            else -> throw IllegalStateException("Illegal priority of Task ${evm.newTask.value.toString()}")
         }
 
         closeButton.setOnClickListener {

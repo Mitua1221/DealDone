@@ -19,8 +19,8 @@ class MainActivity : AppCompatActivity() {
 //        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            window.statusBarColor = ResourcesCompat.getColor(resources, R.color.back_light_primary, applicationContext.theme)
-            window.navigationBarColor = ResourcesCompat.getColor(resources, R.color.back_light_primary, applicationContext.theme)
+            window.statusBarColor = ResourcesCompat.getColor(resources, R.color.label_light_secondary, applicationContext.theme)
+            window.navigationBarColor = ResourcesCompat.getColor(resources, R.color.label_light_secondary, applicationContext.theme)
         }
 
     }

@@ -15,7 +15,7 @@ private const val TAG = "Actualizer"
 @Singleton
 class Actualizer @Inject constructor(): ActualizerInterface {
 
-    private val actualizationScope =
+    var actualizationScope =
         CoroutineScope(Dispatchers.IO + CoroutineName("ActualizationScope"))
 
     @Inject lateinit var repository: Repository
@@ -23,60 +23,62 @@ class Actualizer @Inject constructor(): ActualizerInterface {
     @Inject lateinit var translator: Translator
 
     fun actualize() {
-
         actualizationScope.launch {
-            val doWork = translator.needToUpdate.compareAndSet(true, false)
-            if (doWork) {
-                val taskListFromServerA = async { repository.getTasks() }
-                val taskListFromDbA = async { repository.getTasksFromDatabase() }
-                val taskListFromDb = taskListFromDbA.await()
-                val taskListFromServer = taskListFromServerA.await()
+            actualizationWork(this)
+        }
+    }
 
-                val serverIsEmpty = taskListFromServer.first.isEmpty()
-                val serverIsAviliable = taskListFromServer.second
-                val dbIsEmpty= taskListFromDb.isNullOrEmpty()
+    suspend fun actualizationWork(coroutineScope: CoroutineScope) {
+        val doWork = translator.updateFlag.compareAndSet(true, false)
+        if (doWork) {
+            val taskListFromServerA = coroutineScope.async { repository.getTasks() }
+            val taskListFromDbA = coroutineScope.async { repository.getTasksFromDatabase() }
+            val taskListFromDb = taskListFromDbA.await()
+            val taskListFromServer = taskListFromServerA.await()
 
-                val state = Triple(serverIsEmpty, serverIsAviliable, dbIsEmpty)
+            val serverIsEmpty = taskListFromServer.first.isEmpty()
+            val serverIsAviliable = taskListFromServer.second
+            val dbIsEmpty= taskListFromDb.isNullOrEmpty()
 
-                when (state) {
+            val state = Triple(serverIsEmpty, serverIsAviliable, dbIsEmpty)
 
-                    Triple(true, false, false) -> {//serv - emty | avil - not | db - not empty
-                        val listWithoutDeleted = notDeleted(taskListFromDb!!)
-                        translator.taskListFlow.emit(listWithoutDeleted)
-                        updateServerTasks(updList = emptyList(), delList = deleteOnServer(taskListFromDb))
-                        //отправляем только на удаление, мы не знаем ничего об актуальности тасков на серве
-                    }
+            when (state) {
 
-                    Triple(true, true, false) -> {//serv - emty | avil - yes | db - not empty
-                        val listWithoutDeleted = notDeleted(taskListFromDb!!)
-                        translator.taskListFlow.emit(listWithoutDeleted)
-                        updateServerTasks(updList = listWithoutDeleted, delList = emptyList())
-                        //Отправить все, состояние которых не удаленные
-                    }
+                Triple(true, false, false) -> {//serv - emty | avil - not | db - not empty
+                    val listWithoutDeleted = notDeleted(taskListFromDb!!)
+                    translator.actualTaskList.emit(listWithoutDeleted)
+                    updateServerTasks(updList = emptyList(), delList = deleteOnServer(taskListFromDb))
+                    //отправляем только на удаление, мы не знаем ничего об актуальности тасков на серве
+                }
 
-                    Triple(false, true, true) -> {//serv - not emty | avil - yes | db - empty
-                        translator.taskListFlow.emit(taskListFromServer.first)
-                        repository.setTasksToDatabase(taskListFromServer.first)
-                        //просто вставляем таски в бз
-                    }
+                Triple(true, true, false) -> {//serv - emty | avil - yes | db - not empty
+                    val listWithoutDeleted = notDeleted(taskListFromDb!!)
+                    translator.actualTaskList.emit(listWithoutDeleted)
+                    updateServerTasks(updList = listWithoutDeleted, delList = emptyList())
+                    //Отправить все, состояние которых не удаленные
+                }
 
-                    Triple(false, true, false) -> {//serv - not emty | avil - yes | db - not empty
-                        val list = comparatorDbListAndApiList(taskListFromDb!!, taskListFromServer.first)
-                        translator.taskListFlow.emit(list[0])
-                        updateDatabaseTasks(list[1])
-                        updateServerTasks(updList = list[2], delList = list[3])
-                        //обновляем все
-                    }
+                Triple(false, true, true) -> {//serv - not emty | avil - yes | db - empty
+                    translator.actualTaskList.emit(taskListFromServer.first)
+                    repository.setTasksToDatabase(taskListFromServer.first)
+                    //просто вставляем таски в бз
+                }
 
-                    else -> {
-                        translator.taskListFlow.emit(emptyList())
-                        //serv - emty | avil - not | db - empty
-                        //serv - emty | avil - yes | db - empty
-                    }
+                Triple(false, true, false) -> {//serv - not emty | avil - yes | db - not empty
+                    val list = comparatorDbListAndApiList(taskListFromDb!!, taskListFromServer.first)
+                    translator.actualTaskList.emit(list[0])
+                    updateDatabaseTasks(list[1])
+                    updateServerTasks(updList = list[2], delList = list[3])
+                    //обновляем все
+                }
+
+                else -> {
+                    translator.actualTaskList.emit(emptyList())
+                    //serv - emty | avil - not | db - empty
+                    //serv - emty | avil - yes | db - empty
                 }
             }
         }
-
     }
 
     private suspend fun notDeleted(taskListFromDb: List<TaskItem>) = taskListFromDb.filterNot { it.state == ItemState.DELETED }
@@ -97,9 +99,6 @@ class Actualizer @Inject constructor(): ActualizerInterface {
     }
 
     suspend fun updateServerTasks(updList: List<TaskItem>, delList: List<TaskItem>) {
-
-        Log.d(TAG, "UPD")
-
         val deletedTasksIds = mutableListOf<String>()
         delList.forEach { deletedTasksIds.add(it.id.toString()) }
         val s = repository.syncTasks(
@@ -150,10 +149,6 @@ class Actualizer @Inject constructor(): ActualizerInterface {
             listToDeleteOnServer,
         )
     }
-
-//    suspend fun addTasksToServer(list: List<TaskItem>) {
-//        repository.syncTasks(emptyList(), list)
-//    }
 
     fun updateOrAddTask(task: TaskItem) {
         actualizationScope.launch {

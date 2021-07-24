@@ -3,20 +3,17 @@ package com.arjental.dealdone.viewmodels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.arjental.dealdone.Translator
 import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
 import com.arjental.dealdone.models.TaskItemPriorities
-import com.arjental.dealdone.repository.Actualizer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.*
-import javax.inject.Inject
 
 private const val TAG = "TasksFagmentViewModel"
 
-class TasksFragmentViewModel @Inject constructor(val translator: Translator, val actualizer: Actualizer) : ViewModel() {
+class TasksFragmentViewModel : ViewModel() {
 
     var isHidden = true
     val pasteList: MutableLiveData<List<TaskItem>> = MutableLiveData()
@@ -24,15 +21,12 @@ class TasksFragmentViewModel @Inject constructor(val translator: Translator, val
     var recyclerList: List<TaskItem> = emptyList()
     val qualitySolvedChange: MutableLiveData<Boolean> = MutableLiveData(true)
 
-//    @Inject lateinit var translator: Translator
-//    @Inject lateinit var actualizer: Actualizer
-
-//    private val translator = translator
-//    private val actualizer = actualizer
+    private val translator = ViewModelEnvironment.get().translator
+    private val actualizer = ViewModelEnvironment.get().actualizer
 
     init {
         viewModelScope.launch {
-            translator.taskListFlow.collect {
+            translator.actualTaskList.collect {
                 launch(Dispatchers.Main) { tasksList.value = it }
             }
         }

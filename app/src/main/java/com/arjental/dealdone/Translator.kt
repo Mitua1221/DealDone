@@ -14,14 +14,18 @@ import javax.inject.Singleton
 @Singleton
 class Translator @Inject constructor() {
 
-    var needToUpdate = AtomicBoolean(true)
+    var updateFlag = AtomicBoolean(true)
 
-    var taskList: MutableLiveData<List<TaskItem>> = MutableLiveData(null)
+    val actualTaskList = MutableSharedFlow<List<TaskItem>>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
-    var taskListFlow = MutableSharedFlow<List<TaskItem>>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-
-    var editedTask: MutableLiveData<TaskItem> = MutableLiveData(null)
+    val editedTask: MutableLiveData<TaskItem> = MutableLiveData(null)
 
     val timeSelectedFromCalendar: MutableLiveData<Date?> = MutableLiveData(null)
+
+    fun retOne(): Int {
+        return new()
+    }
+
+    fun new() = 5
 
 }

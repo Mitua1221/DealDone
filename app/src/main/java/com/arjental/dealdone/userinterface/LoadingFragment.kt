@@ -31,7 +31,7 @@ class LoadingFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.loading_fragment, container, false)
 
-        lifecycleScope.launch { translator.taskListFlow.collect {
+        lifecycleScope.launch { translator.actualTaskList.collect {
             findNavController().navigate(R.id.action_loadingFragment_to_dealsFragment)
         } }
 

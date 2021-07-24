@@ -20,7 +20,7 @@ import com.arjental.dealdone.R
 import com.arjental.dealdone.Translator
 import com.arjental.dealdone.delegates.*
 import com.arjental.dealdone.delegates.interfaces.Delegate
-import com.arjental.dealdone.di.factories.viewmodelfactory.ViewModelFactory
+//import com.arjental.dealdone.di.factories.viewmodelfactory.ViewModelFactory
 import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
 import com.arjental.dealdone.recycler.SwipeToDeleteCallback
@@ -36,10 +36,15 @@ private const val TAG = "DealsFragment"
 
 class TasksFragment : Fragment() {
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
+//    @Inject
+//    lateinit var viewModelFactory: ViewModelFactory
 
-    lateinit var tvm: TasksFragmentViewModel
+//    lateinit var tvm: TasksFragmentViewModel
+
+    private val tvm: TasksFragmentViewModel by lazy {
+        ViewModelProvider(requireActivity()).get(TasksFragmentViewModel::class.java)
+    }
+
     private lateinit var tasksRecyclerView: RecyclerView
 
     @Inject lateinit var translator: Translator
@@ -66,7 +71,7 @@ class TasksFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         (requireActivity().application as DealDoneApplication).appComponent.inject(this)
-        tvm = ViewModelProvider(requireActivity(), viewModelFactory).get(TasksFragmentViewModel::class.java)
+//        tvm = ViewModelProvider(requireActivity(), viewModelFactory).get(TasksFragmentViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,8 +93,6 @@ class TasksFragment : Fragment() {
         textviewToolbar.text =
             resources.getString(R.string.my_tasks_done, tvm.unsolvedQuality().toString())
 
-        tvm.recyclerList
-
         appBarLayout = view.findViewById(R.id.appbarlayout_deals_fragment)
 
         appBarLayout.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
@@ -106,8 +109,6 @@ class TasksFragment : Fragment() {
                 }
             }
         })
-
-        println("VASKDASD" + collapsingToolbar.expandedTitleMarginStart.toString())
 
         collapsingToolbar.expandedTitleMarginStart = collapsingToolbar.expandedTitleMarginStart * 2
 
@@ -127,8 +128,6 @@ class TasksFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         addButton.setOnClickListener {
-            Log.d(TAG, tvm.tasksList.value.toString())
-            Log.d(TAG, collapsingToolbar.height.toString())
             findNavController().navigate(R.id.action_dealsFragment_to_newTaskFragment)
         }
 

@@ -19,15 +19,17 @@ private const val TAG = "Repository"
 
 @Singleton
 class Repository @Inject constructor(
-    context: Context,
+    val retrofit: RetrofitInstance,
+    val tasksDatabase: TasksDb,
+    val converterFromApi: ConverterFromApi,
 ) : RepositoryInterface {
 
-    @Inject
-    lateinit var retrofit: RetrofitInstance
-    @Inject
-    lateinit var tasksDatabase: TasksDb
-    @Inject
-    lateinit var converterFromApi: ConverterFromApi
+//    @Inject
+//    lateinit var retrofit: RetrofitInstance
+//    @Inject
+//    lateinit var tasksDatabase: TasksDb
+//    @Inject
+//    lateinit var converterFromApi: ConverterFromApi
 
     //Database
 
@@ -50,11 +52,11 @@ class Repository @Inject constructor(
         if (list.isSuccessful) {
             Pair(converterFromApi.convertFromApiTaskListToTaskItemList(list.body()), true)
         } else {
-            Log.w(TAG, "getTasks = " + list.code().toString())
+            //Log.w(TAG, "getTasks = " + list.code().toString())
             Pair(emptyList(), false)
         }
     } catch (e: Exception) {
-        Log.e(TAG, " getTasks EXCEPTION $e")
+        //Log.e(TAG, " getTasks EXCEPTION $e")
         Pair(emptyList(), false)
     }
 
@@ -135,7 +137,10 @@ class Repository @Inject constructor(
         return null
     }
 
-    override suspend fun syncTasks(toDelete: List<String>, toUpdate: List<TaskItem>): List<TaskItem> {
+    override suspend fun syncTasks(
+        toDelete: List<String>,
+        toUpdate: List<TaskItem>
+    ): List<TaskItem> {
         try {
             val list = retrofit.api.synchronizedTasks(
                 SyncItemsFromApi(

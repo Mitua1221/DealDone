@@ -38,15 +38,9 @@ class TasksWorkerActualization(val context: Context, workerParams: WorkerParamet
 
     override suspend fun doWork(): Result {
 
-        Log.d(TAG, 11.toString())
-
-        val doWork = translator.needToUpdate.compareAndSet(true, false)
-
-        Log.d(TAG, doWork.toString())
+        val doWork = translator.updateFlag.compareAndSet(true, false)
 
         if (doWork) {
-
-            Log.d(TAG, 11.toString())
 
             val taskListFromDb = repository.getTasksFromDatabase()
             val taskListFromServer = repository.getTasks()
@@ -57,8 +51,6 @@ class TasksWorkerActualization(val context: Context, workerParams: WorkerParamet
 
             val state = Triple(serverIsEmpty, serverIsAviliable, dbIsEmpty)
 
-            var s = ""
-
             when (state) {
 
                 Triple(true, false, false) -> {//serv - emty | avil - not | db - not empty
@@ -66,7 +58,6 @@ class TasksWorkerActualization(val context: Context, workerParams: WorkerParamet
                         updList = emptyList(),
                         delList = deleteOnServer(taskListFromDb!!)
                     )
-                    s = "1"
                     //отправляем только на удаление, мы не знаем ничего об актуальности тасков на серве
                 }
 
@@ -75,13 +66,11 @@ class TasksWorkerActualization(val context: Context, workerParams: WorkerParamet
                         updList = setOnServer(taskListFromDb!!),
                         delList = emptyList()
                     )
-                    s = "2"
                     //Отправить все, состояние которых не удаленные
                 }
 
                 Triple(false, true, true) -> {//serv - not emty | avil - yes | db - empty
                     repository.setTasksToDatabase(taskListFromServer.first)
-                    s = "3"
                     //просто вставляем таски в бз
                 }
 
@@ -92,7 +81,6 @@ class TasksWorkerActualization(val context: Context, workerParams: WorkerParamet
                     )
                     actualizer.updateDatabaseTasks(list[1])
                     actualizer.updateServerTasks(updList = list[2], delList = list[3])
-                    s = "4"
                     //обновляем все
                 }
 
@@ -104,27 +92,26 @@ class TasksWorkerActualization(val context: Context, workerParams: WorkerParamet
             }
 
 
-            val intent = MainActivity.newIntent(context)
-            val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
-
-            val resources = context.resources
-            val notification = NotificationCompat
-                .Builder(context, NOTIFICATION_CHANNEL_ID)
-                .setTicker(resources.getString(R.string.tasks_to_done_title))
-                .setSmallIcon(android.R.drawable.ic_menu_report_image)
-                .setContentTitle(resources.getString(R.string.tasks_to_done_title))
-                .setContentText(
-                    resources.getString(
-                        R.string.new_tasks_text,
-                        "YEP + $s"
-                    )
-                )
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true)
-                .build()
-            val notificationManager = NotificationManagerCompat.from(context)
-            notificationManager.notify(13, notification)
-
+//            val intent = MainActivity.newIntent(context)
+//            val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+//
+//            val resources = context.resources
+//            val notification = NotificationCompat
+//                .Builder(context, NOTIFICATION_CHANNEL_ID)
+//                .setTicker(resources.getString(R.string.tasks_to_done_title))
+//                .setSmallIcon(android.R.drawable.ic_menu_report_image)
+//                .setContentTitle(resources.getString(R.string.tasks_to_done_title))
+//                .setContentText(
+//                    resources.getString(
+//                        R.string.new_tasks_text,
+//                        "YEP + $s"
+//                    )
+//                )
+//                .setContentIntent(pendingIntent)
+//                .setAutoCancel(true)
+//                .build()
+//            val notificationManager = NotificationManagerCompat.from(context)
+//            notificationManager.notify(13, notification)
 
         }
 

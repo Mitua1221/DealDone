@@ -1,0 +1,3 @@
+package com.arjental.dealdone.viewmodels.interfaces
+
+interface ViewModelEnvironmentInterface

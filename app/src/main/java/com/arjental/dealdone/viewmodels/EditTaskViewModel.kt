@@ -12,15 +12,12 @@ import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
-class EditTaskViewModel @Inject constructor(val translator: Translator, val actualizer: Actualizer) : ViewModel() {
+class EditTaskViewModel : ViewModel() {
 
     val newTask: MutableLiveData<TaskItem> = MutableLiveData(null)
 
-//    @Inject lateinit var translator: Translator
-//    @Inject lateinit var actualizer: Actualizer
-
-//    val translator = translator
-//    val actualizer = actualizer
+    private val translator = ViewModelEnvironment.get().translator
+    private val actualizer = ViewModelEnvironment.get().actualizer
 
     fun createNewTask() {
         newTask.value = TaskItem(

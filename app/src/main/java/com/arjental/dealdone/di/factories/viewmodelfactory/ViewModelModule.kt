@@ -8,22 +8,22 @@ import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
 
-@Module
-abstract class ViewModelModule {
-
-    @Binds
-    abstract fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(TasksFragmentViewModel::class)
-    abstract fun bindTasksViewModel(viewModel: TasksFragmentViewModel): ViewModel
-
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(EditTaskViewModel::class)
-    abstract fun bindEditTasksViewModel(viewModel: EditTaskViewModel): ViewModel
-
-
-}
+//@Module
+//abstract class ViewModelModule {
+//
+//    @Binds
+//    abstract fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
+//
+//    @Binds
+//    @IntoMap
+//    @ViewModelKey(TasksFragmentViewModel::class)
+//    abstract fun bindTasksViewModel(viewModel: TasksFragmentViewModel): ViewModel
+//
+//
+//    @Binds
+//    @IntoMap
+//    @ViewModelKey(EditTaskViewModel::class)
+//    abstract fun bindEditTasksViewModel(viewModel: EditTaskViewModel): ViewModel
+//
+//
+//}

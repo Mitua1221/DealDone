@@ -39,7 +39,7 @@ class RetrofitInstance @Inject constructor(): RetrofitInstanceInterface {
 
     private val gson: Gson = GsonBuilder().setLenient().create()
 
-    private val retrofit by lazy {
+    val retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
