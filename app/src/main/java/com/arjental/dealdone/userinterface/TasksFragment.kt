@@ -2,12 +2,12 @@ package com.arjental.dealdone.userinterface
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -15,39 +15,41 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.arjental.dealdone.DealDoneApplication
 import com.arjental.dealdone.R
 import com.arjental.dealdone.Translator
-import com.arjental.dealdone.delegates.*
-import com.arjental.dealdone.delegates.interfaces.Delegate
-//import com.arjental.dealdone.di.factories.viewmodelfactory.ViewModelFactory
+import com.arjental.dealdone.exceptions.ExceptionsHandler
+import com.arjental.dealdone.recycler.delegates.*
+import com.arjental.dealdone.recycler.delegates.interfaces.Delegate
 import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
 import com.arjental.dealdone.recycler.SwipeToDeleteCallback
 import com.arjental.dealdone.recycler.TaskListDiffUtil
-import com.arjental.dealdone.viewmodels.TasksFragmentViewModel
+import com.arjental.dealdone.viewmodels.TasksListFragmentViewModel
+import com.arjental.dealdone.viewmodels.ViewModelFactory
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import javax.inject.Inject
 import kotlin.math.abs
 
-private const val TAG = "DealsFragment"
+private const val TAG = "TasksFragment"
 
 class TasksFragment : Fragment() {
 
-//    @Inject
-//    lateinit var viewModelFactory: ViewModelFactory
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
 
-//    lateinit var tvm: TasksFragmentViewModel
-
-    private val tvm: TasksFragmentViewModel by lazy {
-        ViewModelProvider(requireActivity()).get(TasksFragmentViewModel::class.java)
-    }
+    lateinit var tvm: TasksListFragmentViewModel
 
     private lateinit var tasksRecyclerView: RecyclerView
 
-    @Inject lateinit var translator: Translator
+    @Inject
+    lateinit var translator: Translator
+
+    @Inject
+    lateinit var exceptionHandler: ExceptionsHandler
 
     private val taskAdapter by lazy {
         TasksAdapterDelegates(
@@ -67,11 +69,15 @@ class TasksFragment : Fragment() {
     private lateinit var textviewToolbar: TextView
     private lateinit var appBarLayout: AppBarLayout
     private lateinit var hideImageButton: ImageButton
+    private lateinit var swipeRefresh: SwipeRefreshLayout
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         (requireActivity().application as DealDoneApplication).appComponent.inject(this)
-//        tvm = ViewModelProvider(requireActivity(), viewModelFactory).get(TasksFragmentViewModel::class.java)
+        tvm = ViewModelProvider(
+            requireActivity(),
+            viewModelFactory
+        ).get(TasksListFragmentViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,23 +89,39 @@ class TasksFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.deals_fragment, container, false)
+        val view = inflater.inflate(R.layout.tasks_list_fragment, container, false)
 
         toolbar = view.findViewById(R.id.deals_fragment_toolbar)
-
         hideImageButton = view.findViewById(R.id.image_button_visibility_deals)
         collapsingToolbar = view.findViewById(R.id.collapsing_toolbar_deals_fragment)
         textviewToolbar = view.findViewById(R.id.textview_toolbar_deals_fragment)
+        swipeRefresh = view.findViewById(R.id.swipe_refresh)
+        addButton = view.findViewById(R.id.add_new_task_button)
+        tasksRecyclerView = view?.findViewById(R.id.task_list_recycler) as RecyclerView
+
+        swipeRefresh.apply {
+            setColorSchemeColors(
+                ResourcesCompat.getColor(resources, R.color.color_light_blue, requireContext().theme),
+                ResourcesCompat.getColor(resources, R.color.color_light_green, requireContext().theme),
+                ResourcesCompat.getColor(resources, R.color.color_light_red, requireContext().theme),
+            )
+            setProgressBackgroundColorSchemeResource(
+                R.color.back_light_primary
+            )
+        }
+
         textviewToolbar.text =
             resources.getString(R.string.my_tasks_done, tvm.unsolvedQuality().toString())
 
         appBarLayout = view.findViewById(R.id.appbarlayout_deals_fragment)
 
+        swipeRefresh.setOnRefreshListener {
+            tvm.updateTasks()
+        }
+
         appBarLayout.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
             when {
-                abs(verticalOffset) >= appBarLayout.totalScrollRange -> { // collapsed
-
-                }
+                abs(verticalOffset) >= appBarLayout.totalScrollRange -> {} // collapsed
                 verticalOffset == 0 -> { // fully expand
                     textviewToolbar.visibility = View.VISIBLE
                 }
@@ -115,46 +137,19 @@ class TasksFragment : Fragment() {
         collapsingToolbar.setCollapsedTitleTextAppearance(R.style.deals_bar_title_collapsed)
         collapsingToolbar.setExpandedTitleTextAppearance(R.style.deals_bar_title_expand)
 
-        addButton = view.findViewById(R.id.add_new_task_button)
         toolbar.title = getString(R.string.my_tasks)
 
-        tasksRecyclerView = view?.findViewById(R.id.task_list_recycler) as RecyclerView
         setupRecycleView()
-
-        return view
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         addButton.setOnClickListener {
             findNavController().navigate(R.id.action_dealsFragment_to_newTaskFragment)
         }
 
-        tvm.qualitySolvedChange.observe(viewLifecycleOwner, {
-            textviewToolbar.text =
-                resources.getString(R.string.my_tasks_done, tvm.unsolvedQuality().toString())
-        })
-        tvm.qualitySolvedChange.value = true
-
         toolbar.setOnClickListener {
             tasksRecyclerView.smoothScrollToPosition(0)
         }
 
-        tvm.tasksList.observe(viewLifecycleOwner, {
-            if (tvm.isHidden) {
-                tvm.setSortedListToPaste(true)
-            } else {
-                tvm.setSortedListToPaste(false)
-            }
-        })
-
-        tvm.pasteList.observe(viewLifecycleOwner, {
-            taskAdapter.setData(it)
-        })
-
         hideImageButton.setOnClickListener {
-
             if (tvm.isHidden) {
                 hideImageButton.setImageResource(R.drawable.ic_visibility_on)
                 tvm.setSortedListToPaste(false)
@@ -193,12 +188,31 @@ class TasksFragment : Fragment() {
             }
         }
 
+        return view
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        appBarLayout
+        tvm.qualitySolvedChange.observe(viewLifecycleOwner, {
+            textviewToolbar.text =
+                resources.getString(R.string.my_tasks_done, tvm.unsolvedQuality().toString())
+        })
+        tvm.qualitySolvedChange.value = true
+
+        tvm.tasksList.observe(viewLifecycleOwner, {
+            if (tvm.isHidden) {
+                tvm.setSortedListToPaste(true)
+            } else {
+                tvm.setSortedListToPaste(false)
+            }
+        })
+
+        tvm.pasteList.observe(viewLifecycleOwner, {
+            swipeRefresh.isRefreshing = false
+            taskAdapter.setData(it)
+        })
+
     }
 
     override fun onResume() {
@@ -216,9 +230,12 @@ class TasksFragment : Fragment() {
                     tvm.changeElement(translator.editedTask.value!!.copy())
                     translator.editedTask.value = null
                 }
-                else -> IllegalStateException().addSuppressed(Throwable(message = "Illegal Item State"))
+                else -> {
+                    val item = translator.editedTask.value!!.copy()
+                    translator.editedTask.value = null
+                    exceptionHandler.illegalStateOfTask(TAG, item, item.state)
+                }
             }
-
         }
         super.onResume()
     }
@@ -263,7 +280,6 @@ class TasksFragment : Fragment() {
             val diffUtil = TaskListDiffUtil(newList, oldList)
             val diffResults = DiffUtil.calculateDiff(diffUtil)
             tvm.recyclerList = newList
-
             diffResults.dispatchUpdatesTo(this)
         }
     }

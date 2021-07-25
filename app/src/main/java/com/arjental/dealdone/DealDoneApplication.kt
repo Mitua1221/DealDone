@@ -9,7 +9,6 @@ import androidx.work.*
 import com.arjental.dealdone.di.DaggerDealDoneAppComponent
 import com.arjental.dealdone.di.DealDoneAppComponent
 import com.arjental.dealdone.repository.Actualizer
-import com.arjental.dealdone.viewmodels.ViewModelEnvironment
 import com.arjental.dealdone.workmanager.TasksWorkerActualization
 import com.arjental.dealdone.workmanager.TasksWorkerNotification
 import dagger.android.AndroidInjector
@@ -23,16 +22,15 @@ const val NOTIFICATION_CHANNEL_ID = "tasks_poll"
 private const val NOTIFICATION_WORK = "NOTIFICATION_WORK"
 private const val UPDATE_WORK = "UPDATE_WORK"
 
-
 class DealDoneApplication : Application(), HasAndroidInjector {
 
     lateinit var appComponent: DealDoneAppComponent
 
-    @Inject lateinit var androidInjector : DispatchingAndroidInjector<Any>
+    @Inject
+    lateinit var androidInjector: DispatchingAndroidInjector<Any>
 
-    @Inject lateinit var actualizer: Actualizer
-
-    @Inject lateinit var viewModelEnvironment: ViewModelEnvironment
+    @Inject
+    lateinit var actualizer: Actualizer
 
     override fun onCreate() {
         super.onCreate()
@@ -43,16 +41,14 @@ class DealDoneApplication : Application(), HasAndroidInjector {
 
         actualizer.actualize()
 
-        viewModelEnvironment
-
-        setChannels()
+        setNotificationChannels()
         setNotificationWorker(this)
         setActualizationWorker(this)
     }
 
     override fun androidInjector(): AndroidInjector<Any> = androidInjector
 
-    private fun setChannels() {
+    private fun setNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = getString(R.string.notification_channel_name)
             val importance = NotificationManager.IMPORTANCE_DEFAULT
@@ -104,8 +100,6 @@ class DealDoneApplication : Application(), HasAndroidInjector {
 //            .enqueue(workRequest)
 
     }
-
-
 
 
 }

@@ -1,6 +1,5 @@
 package com.arjental.dealdone.repository
 
-import android.util.Log
 import com.arjental.dealdone.Translator
 import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
@@ -14,6 +13,8 @@ private const val TAG = "Actualizer"
 
 @Singleton
 class Actualizer @Inject constructor(): ActualizerInterface {
+
+    private var notFirstUpdate = false
 
     var actualizationScope =
         CoroutineScope(Dispatchers.IO + CoroutineName("ActualizationScope"))
@@ -30,31 +31,31 @@ class Actualizer @Inject constructor(): ActualizerInterface {
 
     suspend fun actualizationWork(coroutineScope: CoroutineScope) {
         val doWork = translator.updateFlag.compareAndSet(true, false)
-        if (doWork) {
+        if (doWork || notFirstUpdate) {
+            notFirstUpdate = true
             val taskListFromServerA = coroutineScope.async { repository.getTasks() }
             val taskListFromDbA = coroutineScope.async { repository.getTasksFromDatabase() }
             val taskListFromDb = taskListFromDbA.await()
             val taskListFromServer = taskListFromServerA.await()
 
             val serverIsEmpty = taskListFromServer.first.isEmpty()
-            val serverIsAviliable = taskListFromServer.second
+            val serverIsAvailable = taskListFromServer.second
             val dbIsEmpty= taskListFromDb.isNullOrEmpty()
 
-            val state = Triple(serverIsEmpty, serverIsAviliable, dbIsEmpty)
-
+            val state = Triple(serverIsEmpty, serverIsAvailable, dbIsEmpty)
             when (state) {
 
                 Triple(true, false, false) -> {//serv - emty | avil - not | db - not empty
-                    val listWithoutDeleted = notDeleted(taskListFromDb!!)
+                    val listWithoutDeleted = returnNotDeletedTasks(taskListFromDb!!)
                     translator.actualTaskList.emit(listWithoutDeleted)
-                    updateServerTasks(updList = emptyList(), delList = deleteOnServer(taskListFromDb))
+                    updateTasksOnServer(updList = emptyList(), delList = deleteTasksOnServer(taskListFromDb))
                     //отправляем только на удаление, мы не знаем ничего об актуальности тасков на серве
                 }
 
                 Triple(true, true, false) -> {//serv - emty | avil - yes | db - not empty
-                    val listWithoutDeleted = notDeleted(taskListFromDb!!)
+                    val listWithoutDeleted = returnNotDeletedTasks(taskListFromDb!!)
                     translator.actualTaskList.emit(listWithoutDeleted)
-                    updateServerTasks(updList = listWithoutDeleted, delList = emptyList())
+                    updateTasksOnServer(updList = listWithoutDeleted, delList = emptyList())
                     //Отправить все, состояние которых не удаленные
                 }
 
@@ -65,10 +66,10 @@ class Actualizer @Inject constructor(): ActualizerInterface {
                 }
 
                 Triple(false, true, false) -> {//serv - not emty | avil - yes | db - not empty
-                    val list = comparatorDbListAndApiList(taskListFromDb!!, taskListFromServer.first)
+                    val list = comparatorTasksFromServerAndFromDatabase(taskListFromDb!!, taskListFromServer.first)
                     translator.actualTaskList.emit(list[0])
-                    updateDatabaseTasks(list[1])
-                    updateServerTasks(updList = list[2], delList = list[3])
+                    updateTasksInDatabase(list[1])
+                    updateTasksOnServer(updList = list[2], delList = list[3])
                     //обновляем все
                 }
 
@@ -81,16 +82,15 @@ class Actualizer @Inject constructor(): ActualizerInterface {
         }
     }
 
-    private suspend fun notDeleted(taskListFromDb: List<TaskItem>) = taskListFromDb.filterNot { it.state == ItemState.DELETED }
+    private suspend fun returnNotDeletedTasks(taskListFromDb: List<TaskItem>) = taskListFromDb.filterNot { it.state == ItemState.DELETED }
 
-    suspend fun updateDatabaseTasks(list: List<TaskItem>) {
+    suspend fun updateTasksInDatabase(list: List<TaskItem>) {
         list.forEach {
-
             repository.updateTaskInDatabase(it)
         }
     }
 
-    private suspend fun deleteOnServer(taskListFromDb: List<TaskItem>): List<TaskItem> {
+    private suspend fun deleteTasksOnServer(taskListFromDb: List<TaskItem>): List<TaskItem> {
         val toDel = mutableListOf<TaskItem>()
         taskListFromDb.forEach {
             if (it.state == ItemState.DELETED) toDel.add(it)
@@ -98,7 +98,7 @@ class Actualizer @Inject constructor(): ActualizerInterface {
         return toDel
     }
 
-    suspend fun updateServerTasks(updList: List<TaskItem>, delList: List<TaskItem>) {
+    suspend fun updateTasksOnServer(updList: List<TaskItem>, delList: List<TaskItem>) {
         val deletedTasksIds = mutableListOf<String>()
         delList.forEach { deletedTasksIds.add(it.id.toString()) }
         val s = repository.syncTasks(
@@ -110,7 +110,7 @@ class Actualizer @Inject constructor(): ActualizerInterface {
         }
     }
 
-    suspend fun comparatorDbListAndApiList(
+    suspend fun comparatorTasksFromServerAndFromDatabase(
         taskListFromDb: List<TaskItem>,
         taskListFromServer: List<TaskItem>,
     ): MutableList<List<TaskItem>> {
@@ -174,6 +174,24 @@ class Actualizer @Inject constructor(): ActualizerInterface {
                 repository.updateTaskInDatabase(task)
             } else repository.deleteTaskFromDatabase(task)
         }
+    }
+
+    //WorkManager Methods
+
+    suspend fun filterTasksToDeleteWorkManager(taskListFromDb: List<TaskItem>): List<TaskItem> {
+        val toDel = mutableListOf<TaskItem>()
+        taskListFromDb.forEach {
+            if (it.state == ItemState.DELETED) toDel.add(it)
+        }
+        return toDel
+    }
+
+    suspend fun filterTasksToSetOnServerWorkManager(taskListFromDb: List<TaskItem>): List<TaskItem> {
+        val toSet = mutableListOf<TaskItem>()
+        taskListFromDb.forEach {
+            if (it.state == ItemState.EXIST) toSet.add(it)
+        }
+        return toSet
     }
 
 }

@@ -2,6 +2,7 @@ package com.arjental.dealdone
 
 import android.util.Log
 import com.arjental.dealdone.databases.tasksdatabase.TasksDb
+import com.arjental.dealdone.exceptions.ExceptionsHandler
 import com.arjental.dealdone.models.TaskItem
 import com.arjental.dealdone.models.newtworkmodels.ItemFromApi
 import com.arjental.dealdone.network.RetrofitInstance
@@ -27,8 +28,9 @@ class RepositoryUnitTest {
     private val log : Log = mock()
     private val tasksDatabase: TasksDb = mock()
     private val converterFromApi: ConverterFromApi = mock()
+    private val exceptionsHandler = mock<ExceptionsHandler>()
 
-    val repository = Repository(retrofitInstance, tasksDatabase, converterFromApi)
+    val repository = Repository(retrofitInstance, tasksDatabase, converterFromApi, exceptionsHandler)
 
     private val listsForTests = ListsForTests()
 

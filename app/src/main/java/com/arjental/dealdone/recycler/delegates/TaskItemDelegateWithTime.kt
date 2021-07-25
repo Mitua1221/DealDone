@@ -1,4 +1,4 @@
-package com.arjental.dealdone.delegates
+package com.arjental.dealdone.recycler.delegates
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -9,12 +9,12 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.arjental.dealdone.R
-import com.arjental.dealdone.delegates.interfaces.Delegate
+import com.arjental.dealdone.recycler.delegates.interfaces.Delegate
 import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
 import com.arjental.dealdone.models.TaskItemPriorities
-import com.arjental.dealdone.viewholders.TaskWithTimeViewHolder
-import com.arjental.dealdone.viewmodels.TasksFragmentViewModel
+import com.arjental.dealdone.recycler.viewholders.TaskWithTimeViewHolder
+import com.arjental.dealdone.viewmodels.TasksListFragmentViewModel
 import java.text.DateFormat
 import java.util.*
 
@@ -54,7 +54,7 @@ class TaskItemDelegateWithTime(context: Context, viewModels: ViewModel) : Delega
                 taskWithTimeViewHolder.taskTextView.setTextColor(colorBlack)
             }
             taskWithTimeViewHolder.editImageButton.setOnClickListener {
-                if (viewModel is TasksFragmentViewModel) viewModel.getTaskFromTranslator(item)
+                if (viewModel is TasksListFragmentViewModel) viewModel.getTaskFromTranslator(item)
                 it.findNavController().navigate(R.id.action_dealsFragment_to_newTaskFragment)
             }
             when (item.priority) {
@@ -70,7 +70,7 @@ class TaskItemDelegateWithTime(context: Context, viewModels: ViewModel) : Delega
                     taskWithTimeViewHolder.priorIcon.visibility = View.VISIBLE
                 }
             }
-            if (viewModel is TasksFragmentViewModel) {
+            if (viewModel is TasksListFragmentViewModel) {
                 taskWithTimeViewHolder.checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
                     if (isChecked) {
                         taskWithTimeViewHolder.taskTextView.strike = true

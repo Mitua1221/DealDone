@@ -10,11 +10,15 @@
         android:label="DealsFragment" >
         <action
             android:id="@+id/action_dealsFragment_to_newTaskFragment"
-            app:destination="@id/newTaskFragment" />
+            app:destination="@id/newTaskFragment"
+            app:enterAnim="@anim/nav_default_pop_enter_anim"
+            app:exitAnim="@anim/nav_default_pop_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
     <fragment
         android:id="@+id/newTaskFragment"
-        android:name="com.arjental.dealdone.userinterface.NewTaskFragment"
+        android:name="com.arjental.dealdone.userinterface.EditTaskFragment"
         android:label="NewTaskFragment" />
     <fragment
         android:id="@+id/loadingFragment"
@@ -22,6 +26,10 @@
         android:label="LoadingFragment" >
         <action
             android:id="@+id/action_loadingFragment_to_dealsFragment"
-            app:destination="@id/dealsFragment" />
+            app:destination="@id/dealsFragment"
+            app:enterAnim="@anim/nav_default_pop_enter_anim"
+            app:exitAnim="@anim/nav_default_pop_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
 </navigation>

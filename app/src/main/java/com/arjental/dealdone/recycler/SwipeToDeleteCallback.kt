@@ -11,8 +11,8 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.arjental.dealdone.R
-import com.arjental.dealdone.viewholders.TaskViewHolder
-import com.arjental.dealdone.viewholders.TaskWithTimeViewHolder
+import com.arjental.dealdone.recycler.viewholders.TaskViewHolder
+import com.arjental.dealdone.recycler.viewholders.TaskWithTimeViewHolder
 
 abstract class SwipeToDeleteCallback(context: Context) :
     ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {

@@ -1,4 +1,4 @@
-package com.arjental.dealdone.delegates.interfaces
+package com.arjental.dealdone.recycler.delegates.interfaces
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView

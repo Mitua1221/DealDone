@@ -93,11 +93,17 @@ dependencies {
     //load spinner
     implementation 'com.github.ybq:Android-SpinKit:1.4.0'
 
+    //SwipeRefresh
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+
     //Dagger
     implementation 'com.google.dagger:dagger:2.36'
     kapt 'com.google.dagger:dagger-compiler:2.36'
     kapt "com.google.dagger:dagger-android-processor:2.36"
     implementation 'com.google.dagger:dagger-android:2.36'
     implementation 'com.google.dagger:dagger-android-support:2.36'
+
+    //Lottie
+    implementation 'com.airbnb.android:lottie:3.7.2'
 
 }

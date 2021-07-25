@@ -14,7 +14,7 @@ import com.arjental.dealdone.Translator
 import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
 import com.arjental.dealdone.models.TaskItemPriorities
-import com.arjental.dealdone.viewmodels.EditTaskViewModel
+import com.arjental.dealdone.viewmodels.EditTaskFragmentViewModel
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -26,12 +26,11 @@ import org.mockito.kotlin.mock
 import java.util.*
 import org.mockito.kotlin.verify
 
-class NewTaskFragmentTest {
+class EditTaskFragmentTest {
 
     private val mockNavController : NavController = mock()
-    private val log = mockk<Log>()
     private val translator = mockk<Translator>()
-    private val emvmockk = mockk<EditTaskViewModel>()
+    private val emvmockk = mockk<EditTaskFragmentViewModel>()
 
     var editedTask: MutableLiveData<TaskItem> = MutableLiveData(null)
     val timeSelectedFromCalendar: MutableLiveData<Date?> = MutableLiveData(null)
@@ -47,7 +46,7 @@ class NewTaskFragmentTest {
         every { emvmockk.updateOrAddTask() } returns Unit
 
         val firstScenario =
-            launchFragmentInContainer<NewTaskFragment>(themeResId = R.style.Theme_DealDone,
+            launchFragmentInContainer<EditTaskFragment>(themeResId = R.style.Theme_DealDone,
             initialState = Lifecycle.State.CREATED)
 
         firstScenario.onFragment { fragment ->
@@ -72,7 +71,7 @@ class NewTaskFragmentTest {
                 editedTask = MutableLiveData( TaskItem(
                     id = UUID.randomUUID(),
                     isSolved = false,
-                    text = "",
+                    text = "UUUUUUUUUUU",
                     priority = TaskItemPriorities.NONE,
                     deadline = null,
                     state = ItemState.NEW,

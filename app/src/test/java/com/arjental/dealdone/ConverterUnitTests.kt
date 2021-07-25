@@ -21,7 +21,7 @@ class ConverterUnitTests {
     private val expectedFromConverter = listsForTests.expectedFromConverter
 
     @Test
-    private fun `empty list to convertFromApiTaskListToTaskItemList method` () {
+    fun `empty list to convertFromApiTaskListToTaskItemList method` () {
         runBlocking {
             val expected = emptyList<TaskItem>()
             val actual = converter.convertFromApiTaskListToTaskItemList(emptyList<ItemFromApi>())

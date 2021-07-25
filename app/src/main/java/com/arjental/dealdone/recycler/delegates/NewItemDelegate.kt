@@ -1,4 +1,4 @@
-package com.arjental.dealdone.delegates
+package com.arjental.dealdone.recycler.delegates
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -6,10 +6,10 @@ import android.view.ViewGroup
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.arjental.dealdone.R
-import com.arjental.dealdone.delegates.interfaces.Delegate
+import com.arjental.dealdone.recycler.delegates.interfaces.Delegate
 import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
-import com.arjental.dealdone.viewholders.NewTaskViewHolder
+import com.arjental.dealdone.recycler.viewholders.NewTaskViewHolder
 
 class NewItemDelegate(context: Context) : Delegate {
 

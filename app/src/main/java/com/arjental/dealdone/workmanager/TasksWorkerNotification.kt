@@ -28,8 +28,6 @@ class TasksWorkerNotification(val context: Context, workerParams: WorkerParamete
         ContextInjection.inject(to = this, with = context)
     }
 
-//    private val repository = Repository(context)
-
     override suspend fun doWork(): Result {
 
         val date = SimpleDateFormat("HH").format(Date())
@@ -44,7 +42,7 @@ class TasksWorkerNotification(val context: Context, workerParams: WorkerParamete
                 val day = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
 
                 val quality =
-                    tasks.count { it.isSolved == false && dateCheck(year, day, it.deadline) }
+                    tasks.count { !it.isSolved && dateCheck(year, day, it.deadline) }
 
                 if (quality > 0) {
                     val intent = MainActivity.newIntent(context)
@@ -81,10 +79,6 @@ class TasksWorkerNotification(val context: Context, workerParams: WorkerParamete
             cal.timeInMillis = deadline
             cal.get(Calendar.YEAR) == year && cal.get(Calendar.DAY_OF_YEAR) == day
         }
-
-
     }
-
-
 
 }

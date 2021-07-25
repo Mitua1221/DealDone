@@ -15,7 +15,6 @@
         <!-- Customize your theme here. -->
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
-
     </style>
 
     <style name="new_task_edit_test_style">

@@ -1,16 +1,12 @@
 package com.arjental.dealdone.repository
 
-import android.content.Context
 import android.util.Log
 import com.arjental.dealdone.databases.tasksdatabase.TasksDb
+import com.arjental.dealdone.exceptions.ExceptionsHandler
 import com.arjental.dealdone.models.TaskItem
-import com.arjental.dealdone.models.newtworkmodels.ItemFromApi
 import com.arjental.dealdone.models.newtworkmodels.SyncItemsFromApi
 import com.arjental.dealdone.network.RetrofitInstance
 import com.arjental.dealdone.repository.interfaces.RepositoryInterface
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,14 +18,12 @@ class Repository @Inject constructor(
     val retrofit: RetrofitInstance,
     val tasksDatabase: TasksDb,
     val converterFromApi: ConverterFromApi,
+    val exceptionsHandler: ExceptionsHandler,
 ) : RepositoryInterface {
 
-//    @Inject
-//    lateinit var retrofit: RetrofitInstance
-//    @Inject
-//    lateinit var tasksDatabase: TasksDb
-//    @Inject
-//    lateinit var converterFromApi: ConverterFromApi
+    private enum class MethodsAPI {
+        GETTASKS, PUSHTASK, UPDATETASK, DELETETASK, SYNCTASKS
+    }
 
     //Database
 
@@ -52,44 +46,43 @@ class Repository @Inject constructor(
         if (list.isSuccessful) {
             Pair(converterFromApi.convertFromApiTaskListToTaskItemList(list.body()), true)
         } else {
-            //Log.w(TAG, "getTasks = " + list.code().toString())
+            exceptionsHandler.unsuccessfulResponse(TAG, list.code().toString(), MethodsAPI.GETTASKS.name)
             Pair(emptyList(), false)
         }
     } catch (e: Exception) {
-        //Log.e(TAG, " getTasks EXCEPTION $e")
+        exceptionsHandler.exceptionInResponse(TAG, e, MethodsAPI.GETTASKS.name)
         Pair(emptyList(), false)
     }
 
-    suspend fun getTasksDemo(): Pair<List<TaskItem>, Boolean> = try {
-        val list: Call<List<ItemFromApi>> = retrofit.api.getTasksDemo()
-
-        list.enqueue(object : Callback<List<ItemFromApi>> {
-            override fun onResponse(
-                call: Call<List<ItemFromApi>>,
-                response: Response<List<ItemFromApi>>
-            ) {
-                TODO("Not yet implemented")
-            }
-
-            override fun onFailure(call: Call<List<ItemFromApi>>, t: Throwable) {
-                TODO("Not yet implemented")
-            }
-
-        })
-
-//        if (list.) {
-//            Pair(converterFromApi.convertFromApiTaskListToTaskItemList(list.body()), true)
-//        } else {
-//            Log.w(TAG, "getTasks = " + list.code().toString())
-//            Pair(emptyList(), false)
-//        }
-        TODO()
-        Pair(emptyList(), false)
-    } catch (e: Exception) {
-        Log.e(TAG, " getTasks EXCEPTION $e")
-        Pair(emptyList(), false)
-    }
-
+//    suspend fun getTasksDemo(): Pair<List<TaskItem>, Boolean> = try {
+//        val list: Call<List<ItemFromApi>> = retrofit.api.getTasksDemo()
+//
+//        list.enqueue(object : Callback<List<ItemFromApi>> {
+//            override fun onResponse(
+//                call: Call<List<ItemFromApi>>,
+//                response: Response<List<ItemFromApi>>
+//            ) {
+//                TODO("Not yet implemented")
+//            }
+//
+//            override fun onFailure(call: Call<List<ItemFromApi>>, t: Throwable) {
+//                TODO("Not yet implemented")
+//            }
+//
+//        })
+//
+////        if (list.) {
+////            Pair(converterFromApi.convertFromApiTaskListToTaskItemList(list.body()), true)
+////        } else {
+////            Log.w(TAG, "getTasks = " + list.code().toString())
+////            Pair(emptyList(), false)
+////        }
+//        TODO()
+//        Pair(emptyList(), false)
+//    } catch (e: Exception) {
+//        Log.e(TAG, " getTasks EXCEPTION $e")
+//        Pair(emptyList(), false)
+//    }
 
     override suspend fun pushTask(setTask: TaskItem): TaskItem? {
         try {
@@ -98,10 +91,10 @@ class Repository @Inject constructor(
             if (changedItem.isSuccessful) {
                 return converterFromApi.convertFromApiItemToTaskItem(changedItem.body())
             } else {
-                Log.w(TAG, "pushTask = " + changedItem.code().toString())
+                exceptionsHandler.unsuccessfulResponse(TAG, changedItem.code().toString(), MethodsAPI.PUSHTASK.name)
             }
         } catch (e: Exception) {
-            Log.e(TAG, "pushTask EXCEPTION $e")
+            exceptionsHandler.exceptionInResponse(TAG, e, MethodsAPI.PUSHTASK.name)
         }
         return null
     }
@@ -115,10 +108,10 @@ class Repository @Inject constructor(
             if (item.isSuccessful) {
                 return converterFromApi.convertFromApiItemToTaskItem(item.body())
             } else {
-                Log.w(TAG, "updateTask = " + item.code().toString())
+                exceptionsHandler.unsuccessfulResponse(TAG, item.code().toString(), MethodsAPI.UPDATETASK.name)
             }
         } catch (e: Exception) {
-            Log.e(TAG, "updateTask EXCEPTION $e")
+            exceptionsHandler.exceptionInResponse(TAG, e, MethodsAPI.UPDATETASK.name)
         }
         return null
     }
@@ -129,10 +122,10 @@ class Repository @Inject constructor(
             if (list.isSuccessful) {
                 return converterFromApi.convertFromApiItemToTaskItem(list.body())
             } else {
-                Log.w(TAG, "deleteTask = " + list.code().toString())
+                exceptionsHandler.unsuccessfulResponse(TAG, list.code().toString(), MethodsAPI.DELETETASK.name)
             }
         } catch (e: Exception) {
-            Log.e(TAG, "deleteTask EXCEPTION $e")
+            exceptionsHandler.exceptionInResponse(TAG, e, MethodsAPI.DELETETASK.name)
         }
         return null
     }
@@ -151,10 +144,10 @@ class Repository @Inject constructor(
             if (list.isSuccessful) {
                 return converterFromApi.convertFromApiTaskListToTaskItemList(list.body())
             } else {
-                Log.w(TAG, "syncTasks = " + list.code().toString())
+                exceptionsHandler.unsuccessfulResponse(TAG, list.code().toString(), MethodsAPI.SYNCTASKS.name)
             }
         } catch (e: Exception) {
-            Log.e(TAG, "syncTasks EXCEPTION $e")
+            exceptionsHandler.exceptionInResponse(TAG, e, MethodsAPI.SYNCTASKS.name)
         }
         return emptyList()
     }

@@ -12,12 +12,12 @@ import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
-class EditTaskViewModel : ViewModel() {
+class EditTaskFragmentViewModel @Inject constructor(
+    private val translator: Translator,
+    private val actualizer: Actualizer,
+) : ViewModel() {
 
     val newTask: MutableLiveData<TaskItem> = MutableLiveData(null)
-
-    private val translator = ViewModelEnvironment.get().translator
-    private val actualizer = ViewModelEnvironment.get().actualizer
 
     fun createNewTask() {
         newTask.value = TaskItem(
@@ -52,6 +52,10 @@ class EditTaskViewModel : ViewModel() {
     fun collectTaskFromTranslator() {
         newTask.value = translator.editedTask.value?.copy()
         translator.editedTask.value = null
+    }
+
+    fun setNonePriority() {
+        newTask.value?.priority = TaskItemPriorities.NONE
     }
 
 }

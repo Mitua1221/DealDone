@@ -4,7 +4,6 @@ import com.arjental.dealdone.models.TaskItem
 import com.arjental.dealdone.repository.Actualizer
 import com.arjental.dealdone.repository.Repository
 import junit.framework.Assert.assertEquals
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -15,7 +14,6 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.coroutines.EmptyCoroutineContext
 
 class ActualizerUnitTests {
 
@@ -67,7 +65,7 @@ class ActualizerUnitTests {
             whenever(translator.updateFlag).thenReturn(AtomicBoolean(true))
             whenever(repository.getTasks()).thenReturn(Pair(emptyList(), false))
             whenever(repository.getTasksFromDatabase()).thenReturn(listForTests.actualizerListOfItems)
-            whenever(actualizer.updateServerTasks(emptyList(),emptyList())).thenReturn(Unit)
+            whenever(actualizer.updateTasksOnServer(emptyList(),emptyList())).thenReturn(Unit)
             whenever(translator.actualTaskList).thenReturn(flow)
             val exp = listForTests.actualizerPasteList
             actualizer.actualizationWork(this)
@@ -82,7 +80,7 @@ class ActualizerUnitTests {
             whenever(translator.updateFlag).thenReturn(AtomicBoolean(true))
             whenever(repository.getTasks()).thenReturn(Pair(emptyList(), true))
             whenever(repository.getTasksFromDatabase()).thenReturn(listForTests.actualizerListOfItems)
-            whenever(actualizer.updateServerTasks(emptyList(),emptyList())).thenReturn(Unit)
+            whenever(actualizer.updateTasksOnServer(emptyList(),emptyList())).thenReturn(Unit)
             whenever(translator.actualTaskList).thenReturn(flow)
             val exp = listForTests.actualizerPasteList
             actualizer.actualizationWork(this)

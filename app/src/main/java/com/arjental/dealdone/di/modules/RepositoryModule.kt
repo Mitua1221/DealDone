@@ -10,8 +10,6 @@ import com.arjental.dealdone.repository.Repository
 import com.arjental.dealdone.repository.interfaces.ActualizerInterface
 import com.arjental.dealdone.repository.interfaces.ConverterFromApiInterface
 import com.arjental.dealdone.repository.interfaces.RepositoryInterface
-import com.arjental.dealdone.viewmodels.ViewModelEnvironment
-import com.arjental.dealdone.viewmodels.interfaces.ViewModelEnvironmentInterface
 import dagger.Binds
 import dagger.Module
 
@@ -32,8 +30,5 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun provideTaskDb(tasksDb: TasksDb): TasksDbInterface
-
-    @Binds
-    abstract fun retVMEnvironment(viewModelEnvironment: ViewModelEnvironment): ViewModelEnvironmentInterface
 
 }

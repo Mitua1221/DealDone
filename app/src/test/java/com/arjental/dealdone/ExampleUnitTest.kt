@@ -28,23 +28,23 @@ class ExampleUnitTest {
     private val testScope =
         CoroutineScope(Dispatchers.IO + CoroutineName("testScope"))
 
-    private val retrofitInstance: RetrofitInstance = mock()
-    private val tasksDatabase: TasksDb = mock()
-    private val converterFromApi: ConverterFromApi = mock()
-    val repository = Repository(retrofitInstance, tasksDatabase, converterFromApi)
-
-    val translator = Translator()
-
-    @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
-    }
-
-    @Test
-    fun translator_isCorrect() {
-        whenever(translator.retOne()).thenReturn(2)
-        assertEquals(2, translator.retOne())
-    }
+//    private val retrofitInstance: RetrofitInstance = mock()
+//    private val tasksDatabase: TasksDb = mock()
+//    private val converterFromApi: ConverterFromApi = mock()
+//    val repository = Repository(retrofitInstance, tasksDatabase, converterFromApi)
+//
+//    val translator = Translator()
+//
+//    @Test
+//    fun addition_isCorrect() {
+//        assertEquals(4, 2 + 2)
+//    }
+//
+//    @Test
+//    fun translator_isCorrect() {
+//        whenever(translator.retOne()).thenReturn(2)
+//        assertEquals(2, translator.retOne())
+//    }
 
 //    @Test
 //    fun `testing repository getTasks with empty list from server`() {

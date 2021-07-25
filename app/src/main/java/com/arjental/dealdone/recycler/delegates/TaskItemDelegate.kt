@@ -1,4 +1,4 @@
-package com.arjental.dealdone.delegates
+package com.arjental.dealdone.recycler.delegates
 
 import android.content.Context
 import android.graphics.Paint
@@ -12,12 +12,12 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.arjental.dealdone.R
-import com.arjental.dealdone.delegates.interfaces.Delegate
+import com.arjental.dealdone.recycler.delegates.interfaces.Delegate
 import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
 import com.arjental.dealdone.models.TaskItemPriorities
-import com.arjental.dealdone.viewholders.TaskViewHolder
-import com.arjental.dealdone.viewmodels.TasksFragmentViewModel
+import com.arjental.dealdone.recycler.viewholders.TaskViewHolder
+import com.arjental.dealdone.viewmodels.TasksListFragmentViewModel
 
 class TaskItemDelegate(val context: Context, private val viewModel: ViewModel) : Delegate {
 
@@ -57,7 +57,7 @@ class TaskItemDelegate(val context: Context, private val viewModel: ViewModel) :
                 taskViewHolder.taskTextView.strike = true
             }
             taskViewHolder.editImageButton.setOnClickListener {
-                if (viewModel is TasksFragmentViewModel) viewModel.getTaskFromTranslator(item)
+                if (viewModel is TasksListFragmentViewModel) viewModel.getTaskFromTranslator(item)
                 it.findNavController().navigate(R.id.action_dealsFragment_to_newTaskFragment)
             }
             if (item.isSolved) {
@@ -67,7 +67,7 @@ class TaskItemDelegate(val context: Context, private val viewModel: ViewModel) :
                 taskViewHolder.taskTextView.strike = false
                 taskViewHolder.taskTextView.setTextColor(colorBlack)
             }
-            if (viewModel is TasksFragmentViewModel) {
+            if (viewModel is TasksListFragmentViewModel) {
                 taskViewHolder.checkBox.setOnClickListener {
                     if (it is CheckBox) {
                         if (it.isChecked) {

@@ -3,12 +3,13 @@ package com.arjental.dealdone.di
 import android.content.Context
 import com.arjental.dealdone.DealDoneApplication
 import com.arjental.dealdone.MainActivity
+import com.arjental.dealdone.di.factories.viewmodelfactory.ViewModelModule
+import com.arjental.dealdone.di.modules.ExceptionModule
 import com.arjental.dealdone.di.modules.RepositoryModule
-//import com.arjental.dealdone.di.factories.viewmodelfactory.ViewModelModule
 import com.arjental.dealdone.di.modules.WorkersModule
 import com.arjental.dealdone.userinterface.DatePickerFragment
 import com.arjental.dealdone.userinterface.LoadingFragment
-import com.arjental.dealdone.userinterface.NewTaskFragment
+import com.arjental.dealdone.userinterface.EditTaskFragment
 import com.arjental.dealdone.userinterface.TasksFragment
 import dagger.BindsInstance
 import dagger.Component
@@ -16,7 +17,7 @@ import dagger.android.AndroidInjectionModule
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [AndroidInjectionModule::class, RepositoryModule::class, /*ViewModelModule::class,*/ WorkersModule::class])
+@Component(modules = [AndroidInjectionModule::class, RepositoryModule::class, ViewModelModule::class, WorkersModule::class, ExceptionModule::class])
 interface DealDoneAppComponent {
 
     @Component.Factory
@@ -30,7 +31,7 @@ interface DealDoneAppComponent {
 
     fun inject(fragment: LoadingFragment)
 
-    fun inject(fragment: NewTaskFragment)
+    fun inject(fragment: EditTaskFragment)
 
     fun inject(fragment: TasksFragment)
 

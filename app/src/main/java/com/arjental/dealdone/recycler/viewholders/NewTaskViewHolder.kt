@@ -1,4 +1,4 @@
-package com.arjental.dealdone.viewholders
+package com.arjental.dealdone.recycler.viewholders
 
 import android.view.View
 import android.widget.ImageButton

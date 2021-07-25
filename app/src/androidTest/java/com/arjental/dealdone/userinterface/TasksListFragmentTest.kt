@@ -1,29 +1,23 @@
 package com.arjental.dealdone.userinterface
 
-import android.util.Log
-import androidx.appcompat.view.ContextThemeWrapper
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.arjental.dealdone.R
-import io.mockk.mockk
-import org.junit.Assert.*
 import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
 
-class TasksFragmentTest {
+class TasksListFragmentTest {
 
-    private val mockNavController : NavController = mock()
-    private val log = mockk<Log>()
+    private val mockNavController = mock<NavController>()
 
     @Test
-    fun press_on_floatingbutton_on_tasksfragment_and_open_newtaskfragment () {
+    fun press_on_floatingButton_on_tasksListFragment_and_open_editTaskFragment () {
 
         val firstScenario = launchFragmentInContainer<TasksFragment>(themeResId = R.style.Theme_DealDone)
 

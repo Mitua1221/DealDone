@@ -22,10 +22,4 @@ class Translator @Inject constructor() {
 
     val timeSelectedFromCalendar: MutableLiveData<Date?> = MutableLiveData(null)
 
-    fun retOne(): Int {
-        return new()
-    }
-
-    fun new() = 5
-
 }

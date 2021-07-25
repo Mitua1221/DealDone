@@ -12,8 +12,8 @@ interface TasksApi {
     @GET("/tasks/")
     suspend fun getTasks(): Response<List<ItemFromApi>>
 
-    @GET("/tasks/")
-    suspend fun getTasksDemo(): Call<List<ItemFromApi>>
+//    @GET("/tasks/")
+//    suspend fun getTasksDemo(): Call<List<ItemFromApi>>
 
     @POST("/tasks/")
     suspend fun pushTask(
