@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.arjental.dealdone.Translator
+import com.arjental.dealdone.exceptions.ExceptionsHandler
 import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
 import com.arjental.dealdone.models.TaskItemPriorities
@@ -19,6 +20,7 @@ private const val TAG = "TasksFragmentViewModel"
 class TasksListFragmentViewModel @Inject constructor(
     private val translator: Translator,
     private val actualizer: Actualizer,
+    private val exceptionHandler: ExceptionsHandler,
 ) : ViewModel() {
 
     var isHidden = true
@@ -185,6 +187,40 @@ class TasksListFragmentViewModel @Inject constructor(
 
     fun updateTasks() {
         actualizer.actualize()
+    }
+
+    fun showDoneElements() {
+        setSortedListToPaste(false)
+        isHidden = false
+    }
+
+    fun hideDoneElements() {
+        setSortedListToPaste(true)
+        isHidden = true
+    }
+
+    fun getChangedTaskFromTranslator() {
+        if (translator.editedTask.value != null) {
+            when (translator.editedTask.value!!.state) {
+                ItemState.DELETED -> {
+                    deleteElement(translator.editedTask.value!!.copy())
+                    translator.editedTask.value = null
+                }
+                ItemState.NEW -> {
+                    addElement(translator.editedTask.value!!.copy())
+                    translator.editedTask.value = null
+                }
+                ItemState.EXIST -> {
+                    changeElement(translator.editedTask.value!!.copy())
+                    translator.editedTask.value = null
+                }
+                else -> {
+                    val item = translator.editedTask.value!!.copy()
+                    translator.editedTask.value = null
+                    exceptionHandler.illegalStateOfTask(TAG, item, item.state)
+                }
+            }
+        }
     }
 
 }

@@ -55,14 +55,13 @@
     </com.google.android.material.appbar.AppBarLayout>
 
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    <com.arjental.dealdone.userinterface.customview.CustomSwipeToRefresh
         android:id="@+id/swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
         android:elevation="2dp"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
@@ -74,7 +73,7 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/task_list_recycler"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:background="@drawable/recyclerview_deals_fragment_background"
                     android:overScrollMode="never"
                     app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
@@ -83,7 +82,7 @@
 
         </LinearLayout>
 
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </com.arjental.dealdone.userinterface.customview.CustomSwipeToRefresh>
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

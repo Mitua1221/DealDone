@@ -1,4 +1,4 @@
-package com.arjental.dealdone.workmanager
+fpackage com.arjental.dealdone.workmanager
 
 import android.content.Context
 import androidx.work.CoroutineWorker

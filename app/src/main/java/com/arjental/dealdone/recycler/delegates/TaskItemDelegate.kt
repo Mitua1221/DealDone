@@ -8,9 +8,11 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModel
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import com.airbnb.paris.extensions.style
 import com.arjental.dealdone.R
 import com.arjental.dealdone.recycler.delegates.interfaces.Delegate
 import com.arjental.dealdone.models.ItemState
@@ -39,20 +41,31 @@ class TaskItemDelegate(val context: Context, private val viewModel: ViewModel) :
     override fun bindViewHolder(viewHolder: RecyclerView.ViewHolder, item: TaskItem) {
         (viewHolder as TaskViewHolder).let { taskViewHolder ->
             taskViewHolder.taskTextView.text = item.text
-            taskViewHolder.checkBox.isChecked = item.isSolved
             when (item.priority) {
                 TaskItemPriorities.HIGH -> {
+                    taskViewHolder.checkBoxImportance.visibility = View.VISIBLE
+                    taskViewHolder.checkBox.visibility = View.GONE
+                    taskViewHolder.checkBoxBackground.visibility = View.VISIBLE
                     taskViewHolder.priorIcon.setImageResource(R.drawable.ic_top_priority)
                     taskViewHolder.priorIcon.visibility = View.VISIBLE
+
                 }
                 TaskItemPriorities.MEDIUM -> {
+                    taskViewHolder.checkBoxImportance.visibility = View.GONE
+                    taskViewHolder.checkBox.visibility = View.VISIBLE
+                    taskViewHolder.checkBoxBackground.visibility = View.GONE
                     taskViewHolder.priorIcon.visibility = View.GONE
                 }
                 TaskItemPriorities.NONE -> {
+                    taskViewHolder.checkBoxImportance.visibility = View.GONE
+                    taskViewHolder.checkBox.visibility = View.VISIBLE
+                    taskViewHolder.checkBoxBackground.visibility = View.GONE
                     taskViewHolder.priorIcon.setImageResource(R.drawable.ic_none_priority)
                     taskViewHolder.priorIcon.visibility = View.VISIBLE
                 }
             }
+            taskViewHolder.checkBox.isChecked = item.isSolved
+            taskViewHolder.checkBoxImportance.isChecked = item.isSolved
             if (item.isSolved) {
                 taskViewHolder.taskTextView.strike = true
             }
@@ -68,22 +81,46 @@ class TaskItemDelegate(val context: Context, private val viewModel: ViewModel) :
                 taskViewHolder.taskTextView.setTextColor(colorBlack)
             }
             if (viewModel is TasksListFragmentViewModel) {
-                taskViewHolder.checkBox.setOnClickListener {
-                    if (it is CheckBox) {
-                        if (it.isChecked) {
-                            taskViewHolder.taskTextView.strike = true
-                            taskViewHolder.taskTextView.setTextColor(colorDone)
-                            item.isSolved = true
-                            viewModel.changeDone(item, true)
-                        } else {
-                            taskViewHolder.taskTextView.strike = false
-                            taskViewHolder.taskTextView.setTextColor(colorBlack)
-                            item.isSolved = false
-                            viewModel.changeDone(item, false)
+                if (taskViewHolder.checkBox.isVisible) {
+                    taskViewHolder.checkBox.setOnClickListener {
+                        if (it is CheckBox) {
+                            if (it.isChecked) {
+                                taskViewHolder.taskTextView.strike = true
+                                taskViewHolder.taskTextView.setTextColor(colorDone)
+                               // if (item.priority == TaskItemPriorities.HIGH) taskViewHolder.checkBoxBackground.visibility = View.GONE
+                                item.isSolved = true
+                                viewModel.changeDone(item, true)
+                            } else {
+                                taskViewHolder.taskTextView.strike = false
+                                taskViewHolder.taskTextView.setTextColor(colorBlack)
+                              //  if (item.priority == TaskItemPriorities.HIGH) taskViewHolder.checkBoxBackground.visibility = View.VISIBLE
+                                item.isSolved = false
+                                viewModel.changeDone(item, false)
+                            }
                         }
+                        viewModel.qualitySolvedChange.value = true
                     }
-                    viewModel.qualitySolvedChange.value = true
+                } else {
+                    taskViewHolder.checkBoxImportance.setOnClickListener {
+                        if (it is CheckBox) {
+                            if (it.isChecked) {
+                                taskViewHolder.taskTextView.strike = true
+                                taskViewHolder.taskTextView.setTextColor(colorDone)
+                                if (item.priority == TaskItemPriorities.HIGH) taskViewHolder.checkBoxBackground.visibility = View.GONE
+                                item.isSolved = true
+                                viewModel.changeDone(item, true)
+                            } else {
+                                taskViewHolder.taskTextView.strike = false
+                                taskViewHolder.taskTextView.setTextColor(colorBlack)
+                                if (item.priority == TaskItemPriorities.HIGH) taskViewHolder.checkBoxBackground.visibility = View.VISIBLE
+                                item.isSolved = false
+                                viewModel.changeDone(item, false)
+                            }
+                        }
+                        viewModel.qualitySolvedChange.value = true
+                    }
                 }
+
 
             }
         }

@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModel
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
@@ -44,6 +45,7 @@ class TaskItemDelegateWithTime(context: Context, viewModels: ViewModel) : Delega
                 DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault())
             taskWithTimeViewHolder.dateTextView.text = dateTimeFormat.format(Date(item.deadline!!))
             taskWithTimeViewHolder.checkBox.isChecked = item.isSolved
+            taskWithTimeViewHolder.checkBoxImportance.isChecked = item.isSolved
             if (item.isSolved) {
                 taskWithTimeViewHolder.taskTextView.strike = true
                 taskWithTimeViewHolder.dateTextView.strike = true
@@ -59,34 +61,65 @@ class TaskItemDelegateWithTime(context: Context, viewModels: ViewModel) : Delega
             }
             when (item.priority) {
                 TaskItemPriorities.HIGH -> {
+                    taskWithTimeViewHolder.checkBoxImportance.visibility = View.VISIBLE
+                    taskWithTimeViewHolder.checkBox.visibility = View.GONE
+                    taskWithTimeViewHolder.checkBoxBackground.visibility = View.VISIBLE
                     taskWithTimeViewHolder.priorIcon.setImageResource(R.drawable.ic_top_priority)
                     taskWithTimeViewHolder.priorIcon.visibility = View.VISIBLE
                 }
                 TaskItemPriorities.MEDIUM -> {
+                    taskWithTimeViewHolder.checkBoxImportance.visibility = View.GONE
+                    taskWithTimeViewHolder.checkBox.visibility = View.VISIBLE
+                    taskWithTimeViewHolder.checkBoxBackground.visibility = View.GONE
                     taskWithTimeViewHolder.priorIcon.visibility = View.GONE
                 }
                 TaskItemPriorities.NONE -> {
+                    taskWithTimeViewHolder.checkBoxImportance.visibility = View.GONE
+                    taskWithTimeViewHolder.checkBox.visibility = View.VISIBLE
+                    taskWithTimeViewHolder.checkBoxBackground.visibility = View.GONE
                     taskWithTimeViewHolder.priorIcon.setImageResource(R.drawable.ic_none_priority)
                     taskWithTimeViewHolder.priorIcon.visibility = View.VISIBLE
                 }
             }
             if (viewModel is TasksListFragmentViewModel) {
-                taskWithTimeViewHolder.checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
-                    if (isChecked) {
-                        taskWithTimeViewHolder.taskTextView.strike = true
-                        taskWithTimeViewHolder.dateTextView.strike = true
-                        taskWithTimeViewHolder.taskTextView.setTextColor(colorDone)
-                        item.isSolved = true
-                        viewModel.changeDone(item, true)
-                    } else {
-                        taskWithTimeViewHolder.taskTextView.strike = false
-                        taskWithTimeViewHolder.dateTextView.strike = false
-                        taskWithTimeViewHolder.taskTextView.setTextColor(colorBlack)
-                        item.isSolved = false
-                        viewModel.changeDone(item, false)
+                if (taskWithTimeViewHolder.checkBox.isVisible) {
+                    taskWithTimeViewHolder.checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
+                        if (isChecked) {
+                            taskWithTimeViewHolder.taskTextView.strike = true
+                            taskWithTimeViewHolder.dateTextView.strike = true
+                            taskWithTimeViewHolder.taskTextView.setTextColor(colorDone)
+                            item.isSolved = true
+                            viewModel.changeDone(item, true)
+                        } else {
+                            taskWithTimeViewHolder.taskTextView.strike = false
+                            taskWithTimeViewHolder.dateTextView.strike = false
+                            taskWithTimeViewHolder.taskTextView.setTextColor(colorBlack)
+                            item.isSolved = false
+                            viewModel.changeDone(item, false)
+                        }
+                        viewModel.qualitySolvedChange.value = true
                     }
-                    viewModel.qualitySolvedChange.value = true
+                } else {
+                    taskWithTimeViewHolder.checkBoxImportance.setOnCheckedChangeListener { buttonView, isChecked ->
+                        if (isChecked) {
+                            taskWithTimeViewHolder.taskTextView.strike = true
+                            taskWithTimeViewHolder.dateTextView.strike = true
+                            taskWithTimeViewHolder.taskTextView.setTextColor(colorDone)
+                            if (item.priority == TaskItemPriorities.HIGH) taskWithTimeViewHolder.checkBoxBackground.visibility = View.GONE
+                            item.isSolved = true
+                            viewModel.changeDone(item, true)
+                        } else {
+                            taskWithTimeViewHolder.taskTextView.strike = false
+                            taskWithTimeViewHolder.dateTextView.strike = false
+                            taskWithTimeViewHolder.taskTextView.setTextColor(colorBlack)
+                            if (item.priority == TaskItemPriorities.HIGH) taskWithTimeViewHolder.checkBoxBackground.visibility = View.VISIBLE
+                            item.isSolved = false
+                            viewModel.changeDone(item, false)
+                        }
+                        viewModel.qualitySolvedChange.value = true
+                    }
                 }
+
             }
         }
     }

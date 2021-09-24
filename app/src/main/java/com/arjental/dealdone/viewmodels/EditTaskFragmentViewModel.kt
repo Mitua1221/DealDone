@@ -2,13 +2,13 @@ package com.arjental.dealdone.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.arjental.dealdone.Translator
 import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
 import com.arjental.dealdone.models.TaskItemPriorities
 import com.arjental.dealdone.repository.Actualizer
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.CoroutineScope
+import java.text.DateFormat
 import java.util.*
 import javax.inject.Inject
 
@@ -42,6 +42,14 @@ class EditTaskFragmentViewModel @Inject constructor(
         }
     }
 
+    fun saveTask(title: String) {
+        newTask.value?.text = title
+        newTask.value?.updateDate = time()
+        translator.editedTask.value = newTask.value?.copy()
+        updateOrAddTask()
+        newTask.value = null
+    }
+
     fun deleteTask() {
         val task = newTask.value?.copy()
         if (task != null) {
@@ -56,6 +64,12 @@ class EditTaskFragmentViewModel @Inject constructor(
 
     fun setNonePriority() {
         newTask.value?.priority = TaskItemPriorities.NONE
+    }
+
+    fun returnLocalizedDate(): String {
+        val dateTimeFormat: DateFormat =
+            DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault())
+        return dateTimeFormat.format(Date(newTask.value?.deadline!!))
     }
 
 }

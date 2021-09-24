@@ -2,9 +2,10 @@ package com.arjental.dealdone
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.res.ResourcesCompat
 import androidx.navigation.findNavController
@@ -16,11 +17,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-//        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+       AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            window.statusBarColor = ResourcesCompat.getColor(resources, R.color.label_light_secondary, applicationContext.theme)
-            window.navigationBarColor = ResourcesCompat.getColor(resources, R.color.label_light_secondary, applicationContext.theme)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M && resources.getBoolean(R.attr.nightMode)) {
+            window.statusBarColor = ResourcesCompat.getColor(resources, R.color.label_light_tertiary, applicationContext.theme)
+            window.navigationBarColor = ResourcesCompat.getColor(resources, R.color.label_light_tertiary, applicationContext.theme)
         }
 
     }

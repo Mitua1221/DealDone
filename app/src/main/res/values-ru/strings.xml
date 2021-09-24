@@ -17,5 +17,6 @@
     <string name="tasks_to_done_title">Послушай, старина</string>
     <string name="new_tasks_text">У тебя %1$s задач(-а) на сегодня.</string>
     <string name="new_tasks_add">Новое</string>
+    <string name="empty_task_title">У таска должно быть название</string>
 
 </resources>

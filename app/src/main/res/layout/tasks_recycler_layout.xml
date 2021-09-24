@@ -13,16 +13,41 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <FrameLayout
+            android:id="@+id/checkbox_importance_background_no_time"
+            android:layout_width="14.3dp"
+            android:layout_height="14.4dp"
+            android:layout_marginStart="18.7dp"
+            android:layout_marginTop="14dp"
+            android:alpha="0.18"
+            android:background="@color/color_light_red"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <CheckBox
             android:id="@+id/task_checkbox"
             android:layout_width="0dp"
             android:layout_height="24dp"
             android:layout_marginStart="10dp"
             android:layout_marginTop="9dp"
+            android:alpha="1"
             android:theme="@style/checkbox_theme_usual"
             app:layout_constraintEnd_toStartOf="@+id/guideline2"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <CheckBox
+            android:id="@+id/task_checkbox_importance"
+            android:layout_width="0dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="9dp"
+            android:visibility="gone"
+            android:alpha="1"
+            android:theme="@style/checkbox_theme_important"
+            app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <ImageView
             android:id="@+id/image_priority"

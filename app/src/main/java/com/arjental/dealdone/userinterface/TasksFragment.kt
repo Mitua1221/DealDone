@@ -15,14 +15,13 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.arjental.dealdone.userinterface.customview.CustomSwipeToRefresh
 import com.arjental.dealdone.DealDoneApplication
 import com.arjental.dealdone.R
 import com.arjental.dealdone.Translator
 import com.arjental.dealdone.exceptions.ExceptionsHandler
 import com.arjental.dealdone.recycler.delegates.*
 import com.arjental.dealdone.recycler.delegates.interfaces.Delegate
-import com.arjental.dealdone.models.ItemState
 import com.arjental.dealdone.models.TaskItem
 import com.arjental.dealdone.recycler.SwipeToDeleteCallback
 import com.arjental.dealdone.recycler.TaskListDiffUtil
@@ -69,7 +68,7 @@ class TasksFragment : Fragment() {
     private lateinit var textviewToolbar: TextView
     private lateinit var appBarLayout: AppBarLayout
     private lateinit var hideImageButton: ImageButton
-    private lateinit var swipeRefresh: SwipeRefreshLayout
+    private lateinit var swipeRefresh: CustomSwipeToRefresh
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -145,51 +144,25 @@ class TasksFragment : Fragment() {
             findNavController().navigate(R.id.action_dealsFragment_to_newTaskFragment)
         }
 
-        toolbar.setOnClickListener {
-            tasksRecyclerView.smoothScrollToPosition(0)
-        }
+//        toolbar.setOnClickListener {
+//            tasksRecyclerView.smoothScrollToPosition(0)
+//        }
 
         hideImageButton.setOnClickListener {
-            if (tvm.isHidden) {
-                hideImageButton.setImageResource(R.drawable.ic_visibility_on)
-                tvm.setSortedListToPaste(false)
-                tvm.isHidden = false
-            } else {
-                hideImageButton.setImageResource(R.drawable.ic_visibility_off)
-                tvm.setSortedListToPaste(true)
-                tvm.isHidden = true
-                true
-            }
+            showOrHideDoneElements()
         }
-
         toolbar.setOnClickListener {
-            if (tvm.isHidden) {
-                hideImageButton.setImageResource(R.drawable.ic_visibility_on)
-                tvm.setSortedListToPaste(false)
-                tvm.isHidden = false
-            } else {
-                hideImageButton.setImageResource(R.drawable.ic_visibility_off)
-                tvm.setSortedListToPaste(true)
-                tvm.isHidden = true
-                true
-            }
+            showOrHideDoneElements()
         }
-
         collapsingToolbar.setOnClickListener {
-            if (tvm.isHidden) {
-                hideImageButton.setImageResource(R.drawable.ic_visibility_on)
-                tvm.setSortedListToPaste(false)
-                tvm.isHidden = false
-            } else {
-                hideImageButton.setImageResource(R.drawable.ic_visibility_off)
-                tvm.setSortedListToPaste(true)
-                tvm.isHidden = true
-                true
-            }
+            showOrHideDoneElements()
         }
 
         return view
+
     }
+
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -216,27 +189,7 @@ class TasksFragment : Fragment() {
     }
 
     override fun onResume() {
-        if (translator.editedTask.value != null) {
-            when (translator.editedTask.value!!.state) {
-                ItemState.DELETED -> {
-                    tvm.deleteElement(translator.editedTask.value!!.copy())
-                    translator.editedTask.value = null
-                }
-                ItemState.NEW -> {
-                    tvm.addElement(translator.editedTask.value!!.copy())
-                    translator.editedTask.value = null
-                }
-                ItemState.EXIST -> {
-                    tvm.changeElement(translator.editedTask.value!!.copy())
-                    translator.editedTask.value = null
-                }
-                else -> {
-                    val item = translator.editedTask.value!!.copy()
-                    translator.editedTask.value = null
-                    exceptionHandler.illegalStateOfTask(TAG, item, item.state)
-                }
-            }
-        }
+        tvm.getChangedTaskFromTranslator()
         super.onResume()
     }
 
@@ -305,7 +258,16 @@ class TasksFragment : Fragment() {
         }
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
         itemTouchHelper.attachToRecyclerView(tasksRecyclerView)
+    }
 
+    private fun showOrHideDoneElements() {
+        if (tvm.isHidden) {
+            hideImageButton.setImageResource(R.drawable.ic_visibility_on)
+            tvm.showDoneElements()
+        } else {
+            hideImageButton.setImageResource(R.drawable.ic_visibility_off)
+            tvm.hideDoneElements()
+        }
     }
 
 

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.res.ResourcesCompat
@@ -81,9 +82,7 @@ class EditTaskFragment : Fragment() {
         descriptionEditText.setText(evm.newTask.value?.text)
         deadlineTextView.text =
             if (evm.newTask.value?.deadline != null) {
-                val dateTimeFormat: DateFormat =
-                    DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault())
-                dateTimeFormat.format(Date(evm.newTask.value?.deadline!!))
+                evm.returnLocalizedDate()
             } else getString(
                 R.string.deadline_not_set
             )
@@ -117,12 +116,12 @@ class EditTaskFragment : Fragment() {
         }
 
         saveButton.setOnClickListener {
-            evm.newTask.value?.text = descriptionEditText.text.toString()
-            evm.newTask.value?.updateDate = evm.time()
-            translator.editedTask.value = evm.newTask.value?.copy()
-            evm.updateOrAddTask()
-            evm.newTask.value = null
-            NavHostFragment.findNavController(this).popBackStack()
+            if (descriptionEditText.text.toString().isEmpty()) {
+                Toast.makeText(requireContext(), R.string.empty_task_title, Toast.LENGTH_SHORT).show()
+            } else {
+                evm.saveTask(descriptionEditText.text.toString())
+                NavHostFragment.findNavController(this).popBackStack()
+            }
         }
 
         deleteButton.setOnClickListener {
@@ -207,10 +206,8 @@ class EditTaskFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         translator.timeSelectedFromCalendar.observe(viewLifecycleOwner, {
-
             if (it != null) {
                 evm.newTask.value?.deadline = it.time
-
                 val dateTimeFormat: DateFormat =
                     DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault())
                 deadlineTextView.text = dateTimeFormat.format(Date(it.time))
@@ -220,11 +217,15 @@ class EditTaskFragment : Fragment() {
                     dateSwitch.isChecked = false
                 }
             }
-
-
         })
-
         super.onViewCreated(view, savedInstanceState)
+
+    }
+
+    override fun onDestroy() {
+        val inputMethodManager = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(requireActivity().currentFocus?.windowToken, 0)
+        super.onDestroy()
     }
 
 }

@@ -16,7 +16,8 @@ class Translator @Inject constructor() {
 
     var updateFlag = AtomicBoolean(true)
 
-    val actualTaskList = MutableSharedFlow<List<TaskItem>>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    val actualTaskList =
+        MutableSharedFlow<List<TaskItem>>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     val editedTask: MutableLiveData<TaskItem> = MutableLiveData(null)
 

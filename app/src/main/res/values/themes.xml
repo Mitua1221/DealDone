@@ -1,5 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
+    <attr name="nightMode" format="bool">false</attr>
+    
     <style name="Theme.DealDone" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/purple_500</item>
@@ -34,6 +36,11 @@
 
     <style name="checkbox_theme_usual" parent="Theme.AppCompat.Light">
         <item name="colorControlNormal">@color/support_light_separator</item>
+        <item name="colorControlActivated">@color/color_light_green</item>
+    </style>
+
+    <style name="checkbox_theme_important" parent="Theme.AppCompat.Light">
+        <item name="colorControlNormal">@color/color_light_red</item>
         <item name="colorControlActivated">@color/color_light_green</item>
     </style>
 

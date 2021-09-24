@@ -19,4 +19,6 @@
     <string name="tasks_to_done_title">Tasks for today</string>
     <string name="new_tasks_text">You have a %1$s task(-s) to do today.</string>
 
+    <string name="empty_task_title">Task have to have a title</string>
+
 </resources>
